@@ -15,6 +15,7 @@ function createCard({ name, link }, deleteCard) {
   const deleteButton = cardElement.querySelector(".card__delete-button");
   cardElement.querySelector(".card__image").src = link;
   cardElement.querySelector(".card__title").textContent = name;
+  cardElement.querySelector(".card__image").alt = name;
 
   // Добавляем обработчик клика на кнопку удаления и функцию удаления
   deleteButton.addEventListener("click", () => {
