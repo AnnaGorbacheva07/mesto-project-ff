@@ -1,7 +1,7 @@
 import "./pages/index.css"; // добавьте импорт главного файла стилей
 import { initialCards } from "./scripts/cards.js";
 import { createCard, likedCard, deleteCard } from "./components/card.js";
-import { openPopup, closePopup, openImagePopup } from "./components/modal.js";
+import { openPopup, closePopup, openImagePopup, openForm, } from "./components/modal.js";
 
 // Получаем элемент методом querySelector и его содержимое свойством content
 const cardTemplate = document.querySelector("#card-template").content;
@@ -28,6 +28,7 @@ initialCards.forEach(({ name, link }) => {
 ///Элементы для работы кнопки "редактировать"
 const editButton = document.querySelector(".profile__edit-button");
 const popupEdit = document.querySelector(".popup_type_edit");
+
 
 ///Элементы для работы кнопки "добавить"
 const addButton = document.querySelector(".profile__add-button");
@@ -94,12 +95,12 @@ const profileJob = document.querySelector(".profile__description");
 const beginName = profileName.textContent;
 const beginJob = profileJob.textContent;
 
-// Функция открытия попапа "редактировать"
+/*// Функция открытия попапа "редактировать"
 function openForm() {
   // Заполняем поля формы текущими значениями
   nameInput.value = profileName.textContent;
   jobInput.value = profileJob.textContent;
-}
+}*/
 
 // Обработчик «отправки» формы
 

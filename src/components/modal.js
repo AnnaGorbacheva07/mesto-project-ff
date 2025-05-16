@@ -23,3 +23,11 @@ export function openImagePopup(src, name) {
  caption.textContent = name;
  openPopup(popupImage);
 }
+
+// Функция открытия попапа "редактировать"
+export function openForm() {
+  // Заполняем поля формы текущими значениями
+  nameInput.value = profileName.textContent;
+  jobInput.value = profileJob.textContent;
+}
+

@@ -1,3 +1,6 @@
+
+// Получаем элемент методом querySelector и его содержимое свойством content
+const cardTemplate = document.querySelector("#card-template").content;
 // Функция создания карточки
 export function createCard({ name, link }, deleteCard, likedCard, openImagePopup) {
   // Клонируем содержимое тега template
