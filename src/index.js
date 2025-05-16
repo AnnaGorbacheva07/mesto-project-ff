@@ -1,15 +1,14 @@
 import "./pages/index.css"; // добавьте импорт главного файла стилей
 import { initialCards } from "./scripts/cards.js";
 import { createCard, likedCard, deleteCard } from "./components/card.js";
-import { openPopup, closePopup, openForm } from "./components/modal.js";
+import { openPopup, closePopup} from "./components/modal.js";
 
 // Получаем элемент методом querySelector и его содержимое свойством content
 const cardTemplate = document.querySelector("#card-template").content;
 
 //Создаём контейнер, в котором хранятся карточки.В нашем случае это <ul>//
 const placesList = document.querySelector(".places__list");
-// Находим форму в DOM
-const formElement = document.querySelector(".popup__form");
+
 ///Элементы для работы клика по изображению карточки
 const popupImage = document.querySelector(".popup_type_image");
 const imageElement = popupImage.querySelector(".popup__image");
@@ -88,7 +87,27 @@ document.addEventListener("keydown", (event) => {
 
 
 //РАБОТА С ОТКРЫТЫМ ПОПАПОМ "РЕДАКТИРОВАТЬ"
+// Находим форму в DOM
+ const formElement = document.querySelector(".popup__form");
 
+// Находим поля формы в DOM
+const nameInput = formElement.querySelector(".popup__input_type_name");
+const jobInput = formElement.querySelector(".popup__input_type_description");
+
+// Выберите элементы, куда должны быть вставлены значения полей
+const profileName = document.querySelector(".profile__title");
+const profileJob = document.querySelector(".profile__description");
+
+// Получаем начальные значения при загрузке страницы
+const beginName = profileName.textContent;
+const beginJob = profileJob.textContent;
+
+// Функция открытия попапа "редактировать"
+function openForm() {
+  // Заполняем поля формы текущими значениями
+  nameInput.value = profileName.textContent;
+  jobInput.value = profileJob.textContent;
+} 
 /// Обработчик «отправки» формы
 
 function handleFormSubmit(evt) {
