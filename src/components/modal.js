@@ -16,18 +16,24 @@ export function closePopup(popup) {
   }, 600);
 } //Функция closePopup принимает один аргумент popup, который является элементом попапа.
 
-// Функция для открытия изображения в попапе
-export function openImagePopup(src, name) {
- imageElement.src = src;
- imageElement.alt = name;
- caption.textContent = name;
- openPopup(popupImage);
-}
+// Находим форму в DOM
+ const formElement = document.querySelector(".popup__form");
+
+// Находим поля формы в DOM
+const nameInput = formElement.querySelector(".popup__input_type_name");
+const jobInput = formElement.querySelector(".popup__input_type_description");
+
+// Выберите элементы, куда должны быть вставлены значения полей
+const profileName = document.querySelector(".profile__title");
+const profileJob = document.querySelector(".profile__description");
+
+// Получаем начальные значения при загрузке страницы
+const beginName = profileName.textContent;
+const beginJob = profileJob.textContent;
 
 // Функция открытия попапа "редактировать"
 export function openForm() {
   // Заполняем поля формы текущими значениями
   nameInput.value = profileName.textContent;
   jobInput.value = profileJob.textContent;
-}
-
+} 
