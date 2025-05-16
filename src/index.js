@@ -1,26 +1,10 @@
 import "./pages/index.css"; // добавьте импорт главного файла стилей
 import { initialCards } from "./scripts/cards.js";
 import { createCard, likedCard, deleteCard } from "./components/card.js";
-import { openPopup, closePopup} from "./components/modal.js";
-
-// Получаем элемент методом querySelector и его содержимое свойством content
-const cardTemplate = document.querySelector("#card-template").content;
+import { openPopup, closePopup } from "./components/modal.js";
 
 //Создаём контейнер, в котором хранятся карточки.В нашем случае это <ul>//
 const placesList = document.querySelector(".places__list");
-
-///Элементы для работы клика по изображению карточки
-const popupImage = document.querySelector(".popup_type_image");
-const imageElement = popupImage.querySelector(".popup__image");
-const caption = popupImage.querySelector(".popup__caption");
-
-// Функция для открытия изображения в попапе
-function openImagePopup(src, name) {
-  imageElement.src = src;
-  imageElement.alt = name;
-  caption.textContent = name;
-  openPopup(popupImage);
-}
 
 ///Перебираем массив,создаем переменную карточки,вызывая функцию создания карточки и выводим на страницу ///
 initialCards.forEach(({ name, link }) => {
@@ -41,22 +25,34 @@ const popupEdit = document.querySelector(".popup_type_edit");
 const addButton = document.querySelector(".profile__add-button");
 const popupNewcard = document.querySelector(".popup_type_new-card");
 
+///Элементы для работы клика по изображению карточки
+const popupImage = document.querySelector(".popup_type_image");
+const imageElement = popupImage.querySelector(".popup__image");
+const caption = popupImage.querySelector(".popup__caption");
+
 //ЗАКРЫТИЕ И ОТКРЫТИЕ ПОПАПОВ
 
 // Получаем все кнопки закрытия попапов
 const closeButtons = document.querySelectorAll(".popup__close");
+// Функция открытия попапа "редактировать"
 
 // Добавляем обработчики событий
-editButton.addEventListener("click", () => openPopup(popupEdit));
+editButton.addEventListener("click", () => {
+  openForm(); // заполняем попап данными
+  openPopup(popupEdit); // открываем его
+});
+
 addButton.addEventListener("click", () => openPopup(popupNewcard));
 
 // Обработчик для всех кнопок закрытия попапов
 closeButtons.forEach((button) => {
   //Цикл forEach проходит по всем кнопкам в массиве closeButtons.
   button.addEventListener("click", (event) => {
+    // Сбрасываем значения полей формы,чтобы при нажатии на крестик данные не сохранялись
+    nameInput.value = "";
+    jobInput.value = "";
     //При нажатии на любую из этих кнопок выполняется анонимная функция
-    /*profileName.textContent != nameInput.value;
-profileJob.textContent != jobInput.value; как сделать чтобы данные не сохранялись*/
+
     const popup = event.target.closest(".popup"); //Находит ближайший родительский элемент с классом .popup от места, где был нажат элемент.
     if (popup) {
       closePopup(popup); //Если такой элемент найден (popup), вызывается функция closePopup(popup), чтобы закрыть попап.
@@ -64,7 +60,7 @@ profileJob.textContent != jobInput.value; как сделать чтобы да�
   });
 });
 
-// Добавляем закрытие попапов по клику на оверлей КАК СДЕЛАТЬ ЧТОБЫ ТОЛЬКО ПО ЧЕРНОМУ ФОНУ
+// Добавляем закрытие попапов по клику на оверлей
 document.addEventListener("click", (event) => {
   const popup = event.target.closest(".popup");
   if (
@@ -85,10 +81,9 @@ document.addEventListener("keydown", (event) => {
   }
 });
 
-
 //РАБОТА С ОТКРЫТЫМ ПОПАПОМ "РЕДАКТИРОВАТЬ"
 // Находим форму в DOM
- const formElement = document.querySelector(".popup__form");
+const formElement = document.querySelector(".popup__form");
 
 // Находим поля формы в DOM
 const nameInput = formElement.querySelector(".popup__input_type_name");
@@ -102,12 +97,11 @@ const profileJob = document.querySelector(".profile__description");
 const beginName = profileName.textContent;
 const beginJob = profileJob.textContent;
 
-// Функция открытия попапа "редактировать"
 function openForm() {
   // Заполняем поля формы текущими значениями
   nameInput.value = profileName.textContent;
   jobInput.value = profileJob.textContent;
-} 
+}
 /// Обработчик «отправки» формы
 
 function handleFormSubmit(evt) {
@@ -130,7 +124,7 @@ function handleFormSubmit(evt) {
   jobInput.value = "";
 }
 
-// Прикрепляем обработчик к формеб он будет следить за событием “submit” - «отправка»
+// Прикрепляем обработчик к форме, он будет следить за событием “submit” - «отправка»
 formElement.addEventListener("submit", handleFormSubmit);
 
 //РАБОТА С ПОПАПОМ "ДОБАВИТЬ КАРТОЧКУ"
@@ -161,3 +155,11 @@ popupNewCard.addEventListener("submit", (evt) => {
   linkInput.value = "";
   closePopup(popupNewCard);
 });
+
+// Функция для открытия изображения в попапе
+function openImagePopup(src, name) {
+  imageElement.src = src;
+  imageElement.alt = name;
+  caption.textContent = name;
+  openPopup(popupImage);
+}
