@@ -93,10 +93,6 @@ const jobInput = formElement.querySelector(".popup__input_type_description");
 const profileName = document.querySelector(".profile__title");
 const profileJob = document.querySelector(".profile__description");
 
-// Получаем начальные значения при загрузке страницы
-const beginName = profileName.textContent;
-const beginJob = profileJob.textContent;
-
 function openForm() {
   // Заполняем поля формы текущими значениями
   nameInput.value = profileName.textContent;
@@ -114,10 +110,6 @@ function handleFormSubmit(evt) {
   // Вставляем новые значения с помощью textContent
   profileName.textContent = nameValue;
   profileJob.textContent = jobValue;
-
-  // Сохраняем новые значения как начальные
-  beginName = nameValue;
-  beginJob = jobValue;
 
   //Сбрасываем
   nameInput.value = "";
