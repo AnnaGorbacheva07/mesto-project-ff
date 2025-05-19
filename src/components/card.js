@@ -6,7 +6,9 @@ export function createCard(
   { name, link },
   deleteCard,
   likedCard,
-  openImagePopup
+  openImagePopup,
+  handleOverlayClose,
+  handleEscClose
 ) {
   // Клонируем содержимое тега template
   const cardElement = cardTemplate
@@ -16,10 +18,10 @@ export function createCard(
   // Находим и Устанавливаем значения элементов
   const deleteButton = cardElement.querySelector(".card__delete-button");
   const likeButton = cardElement.querySelector(".card__like-button");
-  cardElement.querySelector(".card__image").src = link;
-  cardElement.querySelector(".card__title").textContent = name;
-  cardElement.querySelector(".card__image").alt = name;
   const image = cardElement.querySelector(".card__image");
+  image.src = link;
+  cardElement.querySelector(".card__title").textContent = name;
+  image.alt = name;
 
   // Добавляем обработчик клика на кнопку удаления и функцию удаления
   deleteButton.addEventListener("click", () => {

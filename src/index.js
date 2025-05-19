@@ -1,10 +1,22 @@
 import "./pages/index.css"; // добавьте импорт главного файла стилей
 import { initialCards } from "./scripts/cards.js";
 import { createCard, likedCard, deleteCard } from "./components/card.js";
-import { openPopup, closePopup } from "./components/modal.js";
+import {
+  openPopup,
+  closePopup,
+  handleOverlayClose,
+  handleEscClose,
+} from "./components/modal.js";
 
 //Создаём контейнер, в котором хранятся карточки.В нашем случае это <ul>//
 const placesList = document.querySelector(".places__list");
+
+const popups = document.querySelectorAll(".popup");
+
+popups.forEach((popup) => {
+  // Добавляем класс анимации единожды при инициализации
+  popup.classList.add("popup_is-animated");
+});
 
 ///Перебираем массив,создаем переменную карточки,вызывая функцию создания карточки и выводим на страницу ///
 initialCards.forEach(({ name, link }) => {
@@ -38,7 +50,7 @@ const closeButtons = document.querySelectorAll(".popup__close");
 
 // Добавляем обработчики событий
 editButton.addEventListener("click", () => {
-  openForm(); // заполняем попап данными
+  setProfileInputs(); // заполняем попап данными
   openPopup(popupEdit); // открываем его
 });
 
@@ -48,11 +60,7 @@ addButton.addEventListener("click", () => openPopup(popupNewcard));
 closeButtons.forEach((button) => {
   //Цикл forEach проходит по всем кнопкам в массиве closeButtons.
   button.addEventListener("click", (event) => {
-    // Сбрасываем значения полей формы,чтобы при нажатии на крестик данные не сохранялись
-    nameInput.value = "";
-    jobInput.value = "";
     //При нажатии на любую из этих кнопок выполняется анонимная функция
-
     const popup = event.target.closest(".popup"); //Находит ближайший родительский элемент с классом .popup от места, где был нажат элемент.
     if (popup) {
       closePopup(popup); //Если такой элемент найден (popup), вызывается функция closePopup(popup), чтобы закрыть попап.
@@ -60,80 +68,59 @@ closeButtons.forEach((button) => {
   });
 });
 
-// Добавляем закрытие попапов по клику на оверлей
-document.addEventListener("click", (event) => {
-  const popup = event.target.closest(".popup");
-  if (
-    event.target.classList.contains("popup__close") ||
-    event.target === popup
-  ) {
-    closePopup(popup);
-  }
-});
-
-// Добавляем закрытие попапов по Esc
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape") {
-    const popup = document.querySelector(".popup_is-opened");
-    if (popup) {
-      closePopup(popup);
-    }
-  }
-});
-
 //РАБОТА С ОТКРЫТЫМ ПОПАПОМ "РЕДАКТИРОВАТЬ"
 // Находим форму в DOM
-const formElement = document.querySelector(".popup__form");
+
+const editFormElement = document.querySelector('form[name="edit-profile"]');
 
 // Находим поля формы в DOM
-const nameInput = formElement.querySelector(".popup__input_type_name");
-const jobInput = formElement.querySelector(".popup__input_type_description");
+const formEditNameInput = document.querySelector('input[name="name"]');
+const formEditJobInput = document.querySelector('input[name="description"]');
 
 // Выберите элементы, куда должны быть вставлены значения полей
 const profileName = document.querySelector(".profile__title");
 const profileJob = document.querySelector(".profile__description");
 
-function openForm() {
+function setProfileInputs() {
   // Заполняем поля формы текущими значениями
-  nameInput.value = profileName.textContent;
-  jobInput.value = profileJob.textContent;
+  formEditNameInput.value = profileName.textContent;
+  formEditJobInput.value = profileJob.textContent;
 }
 /// Обработчик «отправки» формы
 
-function handleFormSubmit(evt) {
+function handleProfileFormSubmit(evt) {
   evt.preventDefault(); // Эта строчка отменяет стандартную отправку формы.
 
   // Получаем значение полей jobInput и nameInput из свойства value
-  const nameValue = nameInput.value;
-  const jobValue = jobInput.value;
+  const nameValue = formEditNameInput.value;
+  const jobValue = formEditJobInput.value;
 
   // Вставляем новые значения с помощью textContent
   profileName.textContent = nameValue;
   profileJob.textContent = jobValue;
 
   //Сбрасываем
-  nameInput.value = "";
-  jobInput.value = "";
+  formEditNameInput.value = "";
+  formEditJobInput.value = "";
 }
 
 // Прикрепляем обработчик к форме, он будет следить за событием “submit” - «отправка»
-formElement.addEventListener("submit", handleFormSubmit);
+editFormElement.addEventListener("submit", handleProfileFormSubmit);
 
 //РАБОТА С ПОПАПОМ "ДОБАВИТЬ КАРТОЧКУ"
 
 // Получаем элементы DOM
 const popupNewCard = document.querySelector(".popup_type_new-card");
-const nameCardInput = popupNewCard.querySelector(
-  ".popup__input_type_card-name"
-);
-const linkInput = popupNewCard.querySelector(".popup__input_type_url");
+const formAddNewCard = document.querySelector('form[name="new-place"]');
+const formAddNameCardInput = document.querySelector('input[name="place-name"]');
+const formAddLinkInput = document.querySelector('input[name="link"]');
 const saveButton = popupNewCard.querySelector(".popup__button");
 
 // Обработчик события submit
-popupNewCard.addEventListener("submit", (evt) => {
+formAddNewCard.addEventListener("submit", (evt) => {
   evt.preventDefault();
-  const nameCardValue = nameCardInput.value;
-  const linkInputValue = linkInput.value;
+  const nameCardValue = formAddNameCardInput.value;
+  const linkInputValue = formAddLinkInput.value;
 
   const newCardElement = createCard(
     { name: nameCardValue, link: linkInputValue },
@@ -141,10 +128,10 @@ popupNewCard.addEventListener("submit", (evt) => {
     likedCard,
     openImagePopup
   );
-  document.querySelector(".places__list").prepend(newCardElement);
+  placesList.prepend(newCardElement);
 
-  nameCardInput.value = "";
-  linkInput.value = "";
+  formAddNameCardInput.value = "";
+  formAddLinkInput.value = "";
   closePopup(popupNewCard);
 });
 
