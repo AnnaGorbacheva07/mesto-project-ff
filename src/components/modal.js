@@ -9,8 +9,8 @@ export function openPopup(popup) {
 /// Функция закрытия попапа
 export function closePopup(popup) {
   popup.classList.remove("popup_is-opened");
-  document.addEventListener("click", handleOverlayClose);
-  document.addEventListener("keydown", handleEscClose);
+  document.removeEventListener("click", handleOverlayClose);
+  document.removeEventListener("keydown", handleEscClose);
 }
 // Добавляем закрытие попапов по клику на оверлей
 export function handleOverlayClose(event) {

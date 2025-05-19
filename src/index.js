@@ -130,8 +130,9 @@ formAddNewCard.addEventListener("submit", (evt) => {
   );
   placesList.prepend(newCardElement);
 
-  formAddNameCardInput.value = "";
-  formAddLinkInput.value = "";
+  // Используем reset() для сброса формы
+  formAddNewCard.reset();
+  
   closePopup(popupNewCard);
 });
 
