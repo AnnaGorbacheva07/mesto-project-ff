@@ -6,9 +6,7 @@ export function createCard(
   { name, link },
   deleteCard,
   likedCard,
-  openImagePopup,
-  handleOverlayClose,
-  handleEscClose
+  openImagePopup //если эту удалить тогда не будет открываться изображение по клику на него, т.к.выдает ошибку 
 ) {
   // Клонируем содержимое тега template
   const cardElement = cardTemplate

@@ -9,6 +9,7 @@ export function openPopup(popup) {
 /// Функция закрытия попапа
 export function closePopup(popup) {
   popup.classList.remove("popup_is-opened");
+  document.body.style.overflow = "auto";
   document.removeEventListener("click", handleOverlayClose);
   document.removeEventListener("keydown", handleEscClose);
 }
