@@ -42,31 +42,7 @@ const popupImage = document.querySelector(".popup_type_image");
 const imageElement = popupImage.querySelector(".popup__image");
 const caption = popupImage.querySelector(".popup__caption");
 
-//ЗАКРЫТИЕ И ОТКРЫТИЕ ПОПАПОВ
-
-// Получаем все кнопки закрытия попапов
-const closeButtons = document.querySelectorAll(".popup__close");
-// Функция открытия попапа "редактировать"
-
-// Добавляем обработчики событий
-editButton.addEventListener("click", () => {
-  setProfileInputs(); // заполняем попап данными
-  openPopup(popupEdit); // открываем его
-});
-
-addButton.addEventListener("click", () => openPopup(popupNewcard));
-
-// Обработчик для всех кнопок закрытия попапов
-closeButtons.forEach((button) => {
-  //Цикл forEach проходит по всем кнопкам в массиве closeButtons.
-  button.addEventListener("click", (event) => {
-    //При нажатии на любую из этих кнопок выполняется анонимная функция
-    const popup = event.target.closest(".popup"); //Находит ближайший родительский элемент с классом .popup от места, где был нажат элемент.
-    if (popup) {
-      closePopup(popup); //Если такой элемент найден (popup), вызывается функция closePopup(popup), чтобы закрыть попап.
-    }
-  });
-});
+//ВАЛИДАЦИЯ
 
 // Настройки валидации
 const config = {
@@ -204,6 +180,36 @@ export const clearValidation = (formElement, config) => {
   buttonElement.classList.add(config.inactiveButtonClass);
 };
 
+//ЗАКРЫТИЕ И ОТКРЫТИЕ ПОПАПОВ
+
+// Получаем все кнопки закрытия попапов
+const closeButtons = document.querySelectorAll(".popup__close");
+// Функция открытия попапа "редактировать"
+
+// Добавляем обработчики событий
+editButton.addEventListener("click", () => {
+  setProfileInputs(); // заполняем попап данными
+  openPopup(popupEdit); // открываем его
+  clearValidation(popupEdit, config);
+});
+
+addButton.addEventListener("click", () => {
+  openPopup(popupNewCard);
+  clearValidation(popupNewCard, config);
+  formAddNewCard.reset();
+});
+
+// Обработчик для всех кнопок закрытия попапов
+closeButtons.forEach((button) => {
+  //Цикл forEach проходит по всем кнопкам в массиве closeButtons.
+  button.addEventListener("click", (event) => {
+    //При нажатии на любую из этих кнопок выполняется анонимная функция
+    const popup = event.target.closest(".popup"); //Находит ближайший родительский элемент с классом .popup от места, где был нажат элемент.
+    if (popup) {
+      closePopup(popup); //Если такой элемент найден (popup), вызывается функция closePopup(popup), чтобы закрыть попап.
+    }
+  });
+});
 
 //РАБОТА С ОТКРЫТЫМ ПОПАПОМ "РЕДАКТИРОВАТЬ"
 // Находим форму в DOM
@@ -259,7 +265,7 @@ const saveButton = popupNewCard.querySelector(".popup__button");
 // Обработчик события submit
 formAddNewCard.addEventListener("submit", (evt) => {
   evt.preventDefault();
-  const nameCardValue = formAddNameCardInput.value;
+  t.value;
   const linkInputValue = formAddLinkInput.value;
 
   const newCardElement = createCard(
@@ -272,11 +278,8 @@ formAddNewCard.addEventListener("submit", (evt) => {
 
   // Используем reset() для сброса формы
   formAddNewCard.reset();
-  editF;
 
   closePopup(popupNewCard);
-  // Вызываем функцию очистки валидации
-  clearValidation(formAddNewCard, config);
 });
 
 // Функция для открытия изображения в попапе
@@ -287,8 +290,5 @@ function openImagePopup(src, name) {
   openPopup(popupImage);
 }
 
-
 /*ВОПРОСЫ
-1.не работает проверка инпута на ссылку
-2. в попапе новое место кнопка не делается неактивной
-*/
+1. аналогично на этой форме не срабатывает моментБчто кнопка сохранить неактивна в начале и при невалидных инпутах*/

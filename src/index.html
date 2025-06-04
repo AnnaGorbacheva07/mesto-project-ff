@@ -101,8 +101,10 @@
               class="popup__input popup__input_type_url"
               placeholder="Ссылка на картинку"
               required
+              pattern="/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/"
+              
             />
-            <span class="link-input-error popup__error_visible"></span>
+            <span class="link-name-input-error popup__error_visible"></span>
             <button type="submit" class="button popup__button">
               Сохранить
             </button>

@@ -1,19 +1,8 @@
 import { clearValidation } from "../index.js"
-const editFormElement = document.querySelector('form[name="edit-profile"]');
-const config = {
-  formSelector: ".popup__form",
-  inputSelector: ".popup__input",
-  submitButtonSelector: ".popup__button",
-  inactiveButtonClass: "popup__button_disabled",
-  inputErrorClass: "popup__input_type_error",
-  errorClass: "popup__error_visible",
-};
 /// Функция открытия попапа
 export function openPopup(popup) {
   popup.classList.add("popup_is-opened");
   document.body.style.overflow = "hidden";
-  // Вызываем функцию очистки валидации
-  clearValidation(editFormElement, config);
   document.addEventListener("click", handleOverlayClose);
   document.addEventListener("keydown", handleEscClose);
 
