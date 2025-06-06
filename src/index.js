@@ -17,8 +17,51 @@ popups.forEach((popup) => {
   // Добавляем класс анимации единожды при инициализации
   popup.classList.add("popup_is-animated");
 });
+//РАБОТА С API
+  //Информация о пользователе с сервера 
+const getUserData = () => {
+ return fetch('https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me', {
+ headers: {
+ Authorization: 'd40019f3-d207-40df-a273-89cf4c1c6a66'
+ }
+ })
+ .then(res => res.json())
+}
 
-///Перебираем массив,создаем переменную карточки,вызывая функцию создания карточки и выводим на страницу ///
+//запрос на массив карточек
+const getCards = () => {
+ return fetch('https://mesto.nomoreparties.co/v1/wff-cohort-40/cards', {
+ headers: {
+ Authorization: 'd40019f3-d207-40df-a273-89cf4c1c6a66'
+ }
+ })
+ .then(res => res.json())
+}
+/*const user = await getUserData();
+ const cards = await getCards();
+*/
+// Загружаем данные параллельно при помощи метода Promise.all()
+await Promise.all([getUserData(), getCards()])
+ .then(([user, card]) => {
+  console.log(card);
+ сard.forEach(({name, link}) => {
+  const newCard = createCard(
+    {name:card.name, name: card.link },
+    deleteCard,
+    likedCard,
+    openImagePopup
+  );
+  placesList.append(newCard);
+  
+});
+
+});
+
+
+
+
+
+/*///Перебираем массив,создаем переменную карточки,вызывая функцию создания карточки и выводим на страницу ///
 initialCards.forEach(({ name, link }) => {
   const card = createCard(
     { name, link },
@@ -27,7 +70,7 @@ initialCards.forEach(({ name, link }) => {
     openImagePopup
   );
   placesList.append(card);
-});
+});*/
 
 ///Элементы для работы кнопки "редактировать"
 const editButton = document.querySelector(".profile__edit-button");
@@ -130,7 +173,7 @@ const setEventListeners = (formElement) => {
   const inputList = Array.from(
     formElement.querySelectorAll(config.inputSelector)
   );
-  const buttonElement = form.querySelector(config.submitButtonSelector);
+  const buttonElement = formElement.querySelector(config.submitButtonSelector);
   // Вызовем toggleButtonState, чтобы не ждать ввода данных в поля
   toggleButtonState(inputList, buttonElement);
   // Обойдём все элементы полученной коллекции
@@ -265,7 +308,7 @@ const saveButton = popupNewCard.querySelector(".popup__button");
 // Обработчик события submit
 formAddNewCard.addEventListener("submit", (evt) => {
   evt.preventDefault();
-  t.value;
+  const nameCardValue =formAddNameCardInput.value;
   const linkInputValue = formAddLinkInput.value;
 
   const newCardElement = createCard(
@@ -290,5 +333,96 @@ function openImagePopup(src, name) {
   openPopup(popupImage);
 }
 
-/*ВОПРОСЫ
-1. аналогично на этой форме не срабатывает моментБчто кнопка сохранить неактивна в начале и при невалидных инпутах*/
+
+/*//РАБОТА С API
+
+  //Информация о пользователе с сервера 
+const getUserData = () => {
+ return fetch('https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me', {
+ headers: {
+ Authorization: 'd40019f3-d207-40df-a273-89cf4c1c6a66'
+ }
+ })
+ .then(res => res.json())
+  .then((result) => {
+    console.log(result);
+  });
+}
+getUserData()
+
+//запрос на массив карточек
+const getCards = () => {
+ return fetch('https://mesto.nomoreparties.co/v1/wff-cohort-40/cards', {
+ headers: {
+ Authorization: 'd40019f3-d207-40df-a273-89cf4c1c6a66'
+ }
+ })
+ .then(res => res.json())
+  .then((result) => {
+    console.log(result);
+  });
+}
+getCards()
+
+// Загружаем данные параллельно при помощи метода Promise.all()
+Promise.all([getUserData(), getCards()])
+ .then(([user, cards]) => {
+ // Получаем _id пользователя
+ const userId = user._id;
+
+ initialCards.forEach(({ name, link }) => {
+  const card = createCard(
+    { name, link },
+    deleteCard,
+    likedCard,
+    openImagePopup
+  );
+  placesList.append(card);
+});
+});/*
+ // Функция для создания карточки
+ const createCard = (card) => {
+ const cardElement = document.createElement('div');
+ cardElement.classList.add('card');
+ 
+ // Добавляем содержимое карточки
+ const cardElement.innerHTML = `
+ <div class="card-image">
+ <img src="${card.link}" alt="${card.name}">
+ </div>
+ <div class="card-content">
+ <h3>${card.name}</h3>
+ </div>
+ `;
+
+ // Добавляем кнопку удаления для владельца
+ if (card.owner === userId) {
+ const deleteButton = document.createElement('button');
+ deleteButton.classList.add('delete-button');
+ deleteButton.textContent = 'Удалить';
+ cardElement.appendChild(deleteButton);
+ }
+ 
+ // Добавляем кнопку лайка
+ const likeButton = document.createElement('button');
+ likeButton.classList.add('like-button');
+ cardElement.appendChild(likeButton);
+ 
+ // Проверяем, лайкнул ли пользователь
+ if (card.likes.includes(userId)) {
+ likeButton.classList.add('active');
+ }
+ 
+ return cardElement;
+ };
+ 
+ // Отображаем все карточки
+ const cardsContainer = document.querySelector('.cards-container');
+ cards.forEach(card => {
+ const cardElement = createCard(card);
+ cardsContainer.appendChild(cardElement);
+ });
+ })
+ .catch(error => {
+ console.error('Произошла ошибка:', error);
+ });*/
