@@ -44,7 +44,7 @@ await Promise.all([getUserData(), getCards()])
   console.log(cardList);
   cardList.forEach(({ name, link }) => {
     const newCard = createCard(
-      { name, link },
+      { name, link,_id, owner },
       deleteCard,
       likedCard,
       openImagePopup
@@ -366,7 +366,7 @@ formAddNewCard.addEventListener("submit", (evt) => {
  if (newCard) {
  // Создаем элемент карточки только после успешного добавления
  const newCardElement = createCard(
- { name: newCard.name, link: newCard.link },
+ { name: newCard.name, link: newCard.link, _id: newCard._id, owner: newCard.owner._id},
  deleteCard,
  likedCard,
  openImagePopup

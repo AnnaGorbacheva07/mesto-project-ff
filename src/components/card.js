@@ -26,14 +26,13 @@ export function createCard(
     deleteCard(cardElement);
   });*/
 
-  // Получаем ID текущего пользователя
-  const userId = localStorage.getItem('userId');
+  
   
   // Проверяем, принадлежит ли карточка текущему пользователю
-  if (owner === userId) {
+  if (_id === owner._id) {
     deleteButton.style.display = 'block';
     deleteButton.addEventListener("click", () => {
-      deleteCard(/*cardElement, */_id); // Передаем ID карточки в функцию удаления
+      deleteCard(cardElement,_id); // Передаем ID карточки в функцию удаления
     });
   } else {
    deleteButton.style.display = 'none';
