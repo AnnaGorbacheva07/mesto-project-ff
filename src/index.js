@@ -1,6 +1,6 @@
 import "./pages/index.css"; // добавьте импорт главного файла стилей
 import { initialCards } from "./scripts/cards.js";
-import { createCard, likedCard, deleteCard } from "./components/card.js";
+import { createCard, deleteCard } from "./components/card.js";
 import {
   openPopup,
   closePopup,
@@ -35,19 +35,18 @@ const getCards = () => {
     },
   }).then((res) => res.json());
 };
-/*const user = await getUserData();
- const cards = await getCards();
-*/
+
 // Загружаем данные параллельно при помощи метода Promise.all()
 await Promise.all([getUserData(), getCards()])
 .then(([user, cardList]) => {
   console.log(cardList);
-  cardList.forEach(({ name, link }) => {
+  cardList.forEach(({ name, link, _id, owner }) => {
     const newCard = createCard(
-      { name, link,_id, owner },
+      { name, link, _id, owner },
       deleteCard,
-      likedCard,
-      openImagePopup
+      handleLike,
+      openImagePopup,
+      user,
     );
     placesList.append(newCard);
   });
@@ -80,39 +79,80 @@ const addNewCard = (newNameCard, newLink) => {
       name: newNameCard,
       link: newLink,
     }),
-  }).then(res => {
- if (!res.ok) {
- throw new Error(`Ошибка при добавлении карточки: статус ${res.status}`);
- }
- return res.json();
- })
-.then(newCard => {
- console.log('Новая карточка успешно добавлена:', newCard);
- return newCard;
- })
-.catch(error => {
- console.error('Ошибка добавления карточки:', error);
- return null;
- });
+  })
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Ошибка при добавлении карточки: статус ${res.status}`);
+      }
+      return res.json();
+    })
+    .then((newCard) => {
+      console.log("Новая карточка успешно добавлена:", newCard);
+      return newCard;
+    })
+    .catch((error) => {
+      console.error("Ошибка добавления карточки:", error);
+      return null;
+    });
 };
+//РАБОТА С ЛАЙКАМИ
 
-/*const deleteMyCard= (cardElement, cardId) => {
-  return fetch("https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/${cardId}", {
-    method: "DELETE",
+//ЗАПРОСЫ ПУТ И ДЕЛИТ 
+export const putLike = (cardId) => {
+  return fetch(`https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`, {
+    method: "PUT",
     headers: {
       authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
+      "Content-Type": "application/json",
     }
-  })
-  .then(res => {
- if (!res.ok) {
- throw new Error(`Ошибка при удалении карточки: статус ${res.status}`);
- }
- cardElement.remove();
- })
-.catch(error => {
- console.error('Ошибка добавления карточки:', error);
- });
-};*/
+})
+    .then((res) => {
+      if (!res.ok) {
+        throw new Error(`Ошибка при лайке карточки: статус ${res.status}`);
+      }
+      return res.json();
+    })
+};
+export const deleteLike = (cardId) => {
+return fetch(`https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`, {
+method: "DELETE",
+headers: {
+      authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
+      "Content-Type": "application/json",
+    }
+})
+.then((res) => {
+      if (!res.ok) {
+        throw new Error(`Ошибка при лайке карточки: статус ${res.status}`);
+      }
+      return res.json();
+    })
+};
+
+//Функция работы с лайком
+export function handleLike(evt, cardId, likeCount) {
+  const likeButton = evt.target;
+  const isLiked = likeButton.classList.contains("card__like-button_is-active");//добавляем кнопке активный класс
+
+  // Выбираем подходящий метод в зависимости от текущего состояния
+  const method = isLiked ? putLike : deleteLike;
+
+  method(cardId)
+    .then((newCard) => {
+      // Обновляем состояние кнопки
+      likeButton.classList.toggle("card__like-button_is-active");
+
+      // Обновляем счетчик лайков из ответа сервера
+      likeCount.textContent = newCard.likes.length;
+    })
+    .catch((err) => {
+      console.error(`Ошибка обновления лайка: ${err}`);
+    });
+}
+
+
+
+
 ///Элементы для работы кнопки "редактировать"
 const editButton = document.querySelector(".profile__edit-button");
 const popupEdit = document.querySelector(".popup_type_edit");
@@ -361,73 +401,36 @@ formAddNewCard.addEventListener("submit", (evt) => {
   const nameCardValue = formAddNameCardInput.value;
   const linkInputValue = formAddLinkInput.value;
   //вызываем функцию
-  addNewCard (nameCardValue,linkInputValue)
-  .then(newCard => {
- if (newCard) {
- // Создаем элемент карточки только после успешного добавления
- const newCardElement = createCard(
- { name: newCard.name, link: newCard.link, _id: newCard._id, owner: newCard.owner._id},
- deleteCard,
- likedCard,
- openImagePopup
- );
- placesList.prepend(newCardElement);
-
- // Сброс формы
- formAddNewCard.reset();
-
- // Закрываем попап
- closePopup(popupNewCard);
- }
- })
- .catch(error => {
- console.error('Произошла ошибка при добавлении карточки:', error);
- });
-});
-/*.then((newCard) => {
+  addNewCard(nameCardValue, linkInputValue)
+    .then((newCard) => {
       if (newCard) {
- 
-        console.log("Новая карточка успешно добавлена:",newCard);
+        // Создаем элемент карточки только после успешного добавления
+        const newCardElement = createCard(
+          {
+            name: newCard.name,
+            link: newCard.link,
+            _id: newCard._id,
+            owner: newCard.owner._id,
+          },
+          deleteCard,
+          handleLike,
+          openImagePopup,
+          newCard.owner
+        );
+        placesList.prepend(newCardElement);
+
+        // Сброс формы
+        formAddNewCard.reset();
+
+        // Закрываем попап
+        closePopup(popupNewCard);
       }
-      return newCard;
     })
     .catch((error) => {
       console.error("Произошла ошибка при добавлении карточки:", error);
     });
-  const newCardElement = createCard(
-    { name: nameCardValue, link: linkInputValue },
-    deleteCard,
-    likedCard,
-    openImagePopup
-  );
-  placesList.prepend(newCardElement);
-
-  // Используем reset() для сброса формы
-  formAddNewCard.reset();
-
-  closePopup(popupNewCard);
-});*/
-/*
-// Обработчик события submit
-formAddNewCard.addEventListener("submit", (evt) => {
-  evt.preventDefault();
-  const nameCardValue = formAddNameCardInput.value;
-  const linkInputValue = formAddLinkInput.value;
-
-  const newCardElement = createCard(
-    { name: nameCardValue, link: linkInputValue },
-    deleteCard,
-    likedCard,
-    openImagePopup
-  );
-  placesList.prepend(newCardElement);
-
-  // Используем reset() для сброса формы
-  formAddNewCard.reset();
-
-  closePopup(popupNewCard);
 });
-*/
+
 // Функция для открытия изображения в попапе
 function openImagePopup(src, name) {
   imageElement.src = src;
@@ -435,96 +438,3 @@ function openImagePopup(src, name) {
   caption.textContent = name;
   openPopup(popupImage);
 }
-
-/*//РАБОТА С API
-
-  //Информация о пользователе с сервера 
-const getUserData = () => {
- return fetch('https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me', {
- headers: {
- Authorization: 'd40019f3-d207-40df-a273-89cf4c1c6a66'
- }
- })
- .then(res => res.json())
-  .then((result) => {
-    console.log(result);
-  });
-}
-getUserData()
-
-//запрос на массив карточек
-const getCards = () => {
- return fetch('https://mesto.nomoreparties.co/v1/wff-cohort-40/cards', {
- headers: {
- Authorization: 'd40019f3-d207-40df-a273-89cf4c1c6a66'
- }
- })
- .then(res => res.json())
-  .then((result) => {
-    console.log(result);
-  });
-}
-getCards()
-
-// Загружаем данные параллельно при помощи метода Promise.all()
-Promise.all([getUserData(), getCards()])
- .then(([user, cards]) => {
- // Получаем _id пользователя
- const userId = user._id;
-
- initialCards.forEach(({ name, link }) => {
-  const card = createCard(
-    { name, link },
-    deleteCard,
-    likedCard,
-    openImagePopup
-  );
-  placesList.append(card);
-});
-});/*
- // Функция для создания карточки
- const createCard = (card) => {
- const cardElement = document.createElement('div');
- cardElement.classList.add('card');
- 
- // Добавляем содержимое карточки
- const cardElement.innerHTML = `
- <div class="card-image">
- <img src="${card.link}" alt="${card.name}">
- </div>
- <div class="card-content">
- <h3>${card.name}</h3>
- </div>
- `;
-
- // Добавляем кнопку удаления для владельца
- if (card.owner === userId) {
- const deleteButton = document.createElement('button');
- deleteButton.classList.add('delete-button');
- deleteButton.textContent = 'Удалить';
- cardElement.appendChild(deleteButton);
- }
- 
- // Добавляем кнопку лайка
- const likeButton = document.createElement('button');
- likeButton.classList.add('like-button');
- cardElement.appendChild(likeButton);
- 
- // Проверяем, лайкнул ли пользователь
- if (card.likes.includes(userId)) {
- likeButton.classList.add('active');
- }
- 
- return cardElement;
- };
- 
- // Отображаем все карточки
- const cardsContainer = document.querySelector('.cards-container');
- cards.forEach(card => {
- const cardElement = createCard(card);
- cardsContainer.appendChild(cardElement);
- });
- })
- .catch(error => {
- console.error('Произошла ошибка:', error);
- });*/
