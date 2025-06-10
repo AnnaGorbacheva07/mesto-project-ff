@@ -1,6 +1,6 @@
 import "./pages/index.css"; // добавьте импорт главного файла стилей
 import { initialCards } from "./scripts/cards.js";
-import { createCard, deleteCard } from "./components/card.js";
+import { createCard,likedCard, deleteCard } from "./components/card.js";
 import {
   openPopup,
   closePopup,
@@ -42,11 +42,12 @@ await Promise.all([getUserData(), getCards()])
   console.log(cardList);
   cardList.forEach(({ name, link, _id, owner }) => {
     const newCard = createCard(
-      { name, link, _id, owner },
+      { name, link, _id, owner},
       deleteCard,
-      handleLike,
+      likedCard,
       openImagePopup,
       user,
+      /*handleLike,*/
     );
     placesList.append(newCard);
   });
@@ -98,12 +99,11 @@ const addNewCard = (newNameCard, newLink) => {
 //РАБОТА С ЛАЙКАМИ
 
 //ЗАПРОСЫ ПУТ И ДЕЛИТ 
-export const putLike = (cardId) => {
+export const putLike = (_id) => {
   return fetch(`https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`, {
     method: "PUT",
     headers: {
       authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-      "Content-Type": "application/json",
     }
 })
     .then((res) => {
@@ -112,13 +112,16 @@ export const putLike = (cardId) => {
       }
       return res.json();
     })
+    .catch((error) => {
+      console.error('Ошибка при установке лайка:', error);
+      return null;
+    });
 };
-export const deleteLike = (cardId) => {
+export const deleteLike = (_id) => {
 return fetch(`https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`, {
 method: "DELETE",
 headers: {
       authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-      "Content-Type": "application/json",
     }
 })
 .then((res) => {
@@ -127,31 +130,36 @@ headers: {
       }
       return res.json();
     })
+.catch((error) => {
+      console.error('Ошибка при удалении лайка:', error);
+      return null;
+    });
 };
+/*
 
-//Функция работы с лайком
-export function handleLike(evt, cardId, likeCount) {
+
+/*
+///Функция работы с лайком
+function handleLike(evt, _id, likeCount) {
   const likeButton = evt.target;
   const isLiked = likeButton.classList.contains("card__like-button_is-active");//добавляем кнопке активный класс
 
   // Выбираем подходящий метод в зависимости от текущего состояния
-  const method = isLiked ? putLike : deleteLike;
+  const method = isLiked ? deleteLike : putLike;
 
-  method(cardId)
-    .then((newCard) => {
+  method(_id)
+    .then((cardElement) => {
       // Обновляем состояние кнопки
       likeButton.classList.toggle("card__like-button_is-active");
 
       // Обновляем счетчик лайков из ответа сервера
-      likeCount.textContent = newCard.likes.length;
+      likeCount.textContent = cardElement.likes.length;
     })
     .catch((err) => {
       console.error(`Ошибка обновления лайка: ${err}`);
     });
 }
-
-
-
+*/
 
 ///Элементы для работы кнопки "редактировать"
 const editButton = document.querySelector(".profile__edit-button");
@@ -410,12 +418,13 @@ formAddNewCard.addEventListener("submit", (evt) => {
             name: newCard.name,
             link: newCard.link,
             _id: newCard._id,
-            owner: newCard.owner._id,
+            owner: newCard.owner._id
           },
           deleteCard,
-          handleLike,
+          likedCard,
           openImagePopup,
           newCard.owner
+          /*handleLike,*/
         );
         placesList.prepend(newCardElement);
 
