@@ -1,14 +1,16 @@
-
 import { putLike, deleteLike } from "../index.js";
 // Получаем элемент методом querySelector и его содержимое свойством content
 const cardTemplate = document.querySelector("#card-template").content;
 
+
+
+
 // Функция создания карточки
 export function createCard(
-  { name, link, _id, owner},
+  { name, link, _id, owner },
   deleteCard,
   likedCard,
-  openImagePopup,//если эту удалить тогда не будет открываться изображение по клику на него, т.к.выдает ошибку
+  openImagePopup, //если эту удалить тогда не будет открываться изображение по клику на него, т.к.выдает ошибку
   user
 ) {
   // Клонируем содержимое тега template
@@ -19,7 +21,7 @@ export function createCard(
   // Находим и Устанавливаем значения элементов
   const deleteButton = cardElement.querySelector(".card__delete-button");
   const likeButton = cardElement.querySelector(".card__like-button");
- const likeCount = cardElement.querySelector(".card__like-count");
+  const likeCountElement = cardElement.querySelector(".card__like-count");
   const image = cardElement.querySelector(".card__image");
   image.src = link;
   cardElement.querySelector(".card__title").textContent = name;
@@ -30,8 +32,6 @@ export function createCard(
     deleteCard(cardElement);
   });*/
 
- 
-
   // Проверяем, принадлежит ли карточка текущему пользователю
   if (user._id === owner._id) {
     deleteButton.style.display = "block";
@@ -41,17 +41,10 @@ export function createCard(
   } else {
     deleteButton.style.display = "none";
   }
- /*
-// Проверяем, лайкнул ли текущий пользователь карточку
-  const isLiked = owner.likes.some((like) => like._id === user._id);
-  if (isLiked) {
-    likeButton.classList.add("card__like-button_is-active");
-  }
-   // Устанавливаем количество лайков
-  likeCount.textContent = newCard.likes.length;*/
+
   //Обработчик лайка
   likeButton.addEventListener("click", (evt) => {
-    likedCard(evt, _id);
+    likedCard(evt, _id, likeCountElement);
   });
 
   /// Открытие изображения в попапе
@@ -61,36 +54,58 @@ export function createCard(
   return cardElement;
 }
 
-export function likedCard (evt, _id) {
+
+export function likedCard(evt, _id, likeCountElement) {
+  
   const likeButton = evt.target;
   const isLiked = likeButton.classList.contains("card__like-button_is-active");
-  const likeCountElement = document.querySelector(".card__like-count");
-
+  /*const likeCountElement = document.querySelector(".card__like-count");*/
+  // Логирование для проверки существования элементов
+ console.log('likeCountElement:', likeCountElement);
+ console.log('likeButton:', likeButton);
+  // Проверка наличия элементов
+  if (!likeCountElement || !likeButton) {
+    console.error("Элементы не найдены в likedCard");
+    return;
+  }
+  let likeCount = 0;
+  
+  // Получаем текущее значение счетчика лайков
+  if (likeCountElement.textContent) {
+    likeCount = parseInt(likeCountElement.textContent, 10);
+  }
   if (isLiked) {
-// Удаляем лайк
+    // Удаляем лайк
     deleteLike(_id)
-      .then(likeData => {
+      .then((likeData) => {
         if (likeData) {
           likeButton.classList.remove("card__like-button_is-active");
-          likeCountElement.textContent = cardElement.likes.length;
-          console.log('Лайк удален успешно');
+          likeCount--;
+          if (likeCount >= 0) {
+            // Проверка на случай, если лайков больше нет
+            likeCountElement.textContent = likeCount;
+          } else {
+            likeCountElement.textContent = ""; // Убираем счетчик, если лайков нет
+          }
+          console.log("Лайк удален успешно");
         }
       })
-      .catch(err => {
-        console.error('Ошибка при удалении лайка:', err);
+      .catch((err) => {
+        console.error("Ошибка при удалении лайка:", err);
       });
   } else {
     // Устанавливаем лайк
     putLike(_id)
-      .then(likeData => {
+      .then((likeData) => {
         if (likeData) {
           likeButton.classList.add("card__like-button_is-active");
-          likeCountElement.textContent = cardElement.likes.length;
-          console.log('Лайк установлен успешно');
+          likeCount++;
+          likeCountElement.textContent = likeCount;
+          console.log("Лайк установлен успешно");
         }
       })
-      .catch(err => {
-        console.error('Ошибка при установке лайка:', err);
+      .catch((err) => {
+        console.error("Ошибка при установке лайка:", err);
       });
   }
 }
@@ -119,3 +134,11 @@ export function deleteCard(cardElement) {
   cardElement.remove();
 }
 */
+
+/*// Проверяем, лайкнул ли текущий пользователь карточку
+  const isLiked = owner.likes.some((like) => like._id === user._id);
+  if (isLiked) {
+    likeButton.classList.add("card__like-button_is-active");
+  }
+   // Устанавливаем количество лайков
+  likeCount.textContent = newCard.likes.length;*/
