@@ -21,12 +21,16 @@ export function createCard(
   // Находим и Устанавливаем значения элементов
   const deleteButton = cardElement.querySelector(".card__delete-button");
   const likeButton = cardElement.querySelector(".card__like-button");
-  const likeCountElement = cardElement.querySelector(".card__like-count");
+  const likeCountElement =cardElement.querySelector(".card__like-count");
   const image = cardElement.querySelector(".card__image");
   image.src = link;
   cardElement.querySelector(".card__title").textContent = name;
   image.alt = name;
-
+// Добавляем проверку на существование элемента
+  if (!likeCountElement) {
+    console.error('Элемент .card__like-count не найден в шаблоне');
+    return;
+  }
   /*// Добавляем обработчик клика на кнопку удаления и функцию удаления
   deleteButton.addEventListener("click", () => {
     deleteCard(cardElement);

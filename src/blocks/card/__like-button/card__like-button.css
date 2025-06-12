@@ -18,7 +18,7 @@
 .card__like-button:hover {
   opacity: 0.6;
 }
-.card_like-box {
+.card__like-box {
   display: flex;
   flex-direction: column;
 }

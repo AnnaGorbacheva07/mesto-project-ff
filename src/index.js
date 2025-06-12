@@ -1,6 +1,6 @@
 import "./pages/index.css"; // добавьте импорт главного файла стилей
 import { initialCards } from "./scripts/cards.js";
-import { createCard,likedCard, deleteCard } from "./components/card.js";
+import { createCard, likedCard, deleteCard } from "./components/card.js";
 import {
   openPopup,
   closePopup,
@@ -21,6 +21,7 @@ popups.forEach((popup) => {
 //Информация о пользователе с сервера
 const getUserData = () => {
   return fetch("https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me", {
+    method: "GET",
     headers: {
       Authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
     },
@@ -37,20 +38,20 @@ const getCards = () => {
 };
 
 // Загружаем данные параллельно при помощи метода Promise.all()
-await Promise.all([getUserData(), getCards()])
-.then(([user, cardList]) => {
+await Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
   console.log(cardList);
   cardList.forEach(({ name, link, _id, owner }) => {
     const newCard = createCard(
-      { name, link, _id, owner},
+      { name, link, _id, owner },
       deleteCard,
       likedCard,
       openImagePopup,
-      user,
-      /*handleLike,*/
+      user
     );
     placesList.append(newCard);
   });
+  /*profileName.textContent = user.name;
+        profileJob.textContent = user.about;*/
 });
 
 const updateUserData = (newName, newAbout) => {
@@ -65,6 +66,9 @@ const updateUserData = (newName, newAbout) => {
       about: newAbout,
     }),
   }).then((res) => {
+    if (!res.ok) {
+      throw new Error("Ошибка обновления профиля");
+    }
     return res.json();
   });
 };
@@ -98,14 +102,17 @@ const addNewCard = (newNameCard, newLink) => {
 };
 //РАБОТА С ЛАЙКАМИ
 
-//ЗАПРОСЫ ПУТ И ДЕЛИТ 
+//ЗАПРОСЫ ПУТ И ДЕЛИТ
 export const putLike = (_id) => {
-  return fetch(`https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`, {
-    method: "PUT",
-    headers: {
-      authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
+  return fetch(
+    `https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`,
+    {
+      method: "PUT",
+      headers: {
+        authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
+      },
     }
-})
+  )
     .then((res) => {
       if (!res.ok) {
         throw new Error(`Ошибка при лайке карточки: статус ${res.status}`);
@@ -113,53 +120,115 @@ export const putLike = (_id) => {
       return res.json();
     })
     .catch((error) => {
-      console.error('Ошибка при установке лайка:', error);
+      console.error("Ошибка при установке лайка:", error);
       return null;
     });
 };
 export const deleteLike = (_id) => {
-return fetch(`https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`, {
-method: "DELETE",
-headers: {
-      authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
+  return fetch(
+    `https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`,
+    {
+      method: "DELETE",
+      headers: {
+        authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
+      },
     }
-})
-.then((res) => {
+  )
+    .then((res) => {
       if (!res.ok) {
         throw new Error(`Ошибка при лайке карточки: статус ${res.status}`);
       }
       return res.json();
     })
-.catch((error) => {
-      console.error('Ошибка при удалении лайка:', error);
+    .catch((error) => {
+      console.error("Ошибка при удалении лайка:", error);
       return null;
     });
 };
-/*
+///ОБНОВЛЕНИЕ АВАТАРКИ
+///ЗАПРОС
+const updateUserAvatar = (newAvatar) => {
+  return fetch(
+    "https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me/avatar",
+    {
+      method: "PATCH",
+      headers: {
+        authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        avatar: newAvatar,
+      }),
+    }
+  ).then((res) => {
+    return res.json();
+  });
+};
+///ФУНКЦИЯ
 
+//Элементы для работы кнопки "аватар"
+const avatarEditButton = document.querySelector(".profile__image-edit");
+const popupAvatar = document.querySelector(".popup_type_avatar");
+const avatarForm = document.querySelector('form[name="update-avatar"]');
+const formAvatarInput = avatarForm.querySelector('input[name="avatar-link"]');
+const profileImage = document.querySelector(".profile__image");
 
-/*
-///Функция работы с лайком
-function handleLike(evt, _id, likeCount) {
-  const likeButton = evt.target;
-  const isLiked = likeButton.classList.contains("card__like-button_is-active");//добавляем кнопке активный класс
+// Функция для изменения текста кнопки в зависимости от состояния загрузки
+function renderLoading(
+  isLoading,
+  button,
+  buttonText = "Сохранить",
+  loadingText = "Сохранение..."
+) {
+  if (isLoading) {
+    button.textContent = loadingText;
+  } else {
+    button.textContent = buttonText;
+  }
+}
 
-  // Выбираем подходящий метод в зависимости от текущего состояния
-  const method = isLiked ? deleteLike : putLike;
+// Обработчик отправки формы обновления аватара
+function handleAvatarFormSubmit(evt) {
+  evt.preventDefault();
 
-  method(_id)
-    .then((cardElement) => {
-      // Обновляем состояние кнопки
-      likeButton.classList.toggle("card__like-button_is-active");
+  // Получаем значение из инпута
+  const avatarLink = formAvatarInput.value;
 
-      // Обновляем счетчик лайков из ответа сервера
-      likeCount.textContent = cardElement.likes.length;
+  // Получаем кнопку отправки формы через event.submitter
+  const submitButton = evt.submitter;
+  // Сохраняем оригинальный текст кнопки
+  const originalButtonText = submitButton.textContent;
+  // Включаем индикацию загрузки
+  renderLoading(true, submitButton, originalButtonText);
+
+  // Отправляем запрос на сервер для обновления аватара
+  updateUserAvatar(avatarLink)
+    .then((userData) => {
+      // Обновляем аватар на странице
+      profileImage.style.backgroundImage = `url(${userData.avatar})`;
+      // Закрываем попап
+      closePopup(popupAvatar);
+      // Сбрасываем форму
+      avatarForm.reset();
     })
     .catch((err) => {
-      console.error(`Ошибка обновления лайка: ${err}`);
+      console.error(`Ошибка обновлениz аватара: ${err}`);
+    })
+    .finally(() => {
+      // Выключаем индикацию загрузки
+      renderLoading(false, submitButton, originalButtonText);
     });
 }
-*/
+
+/* */
+// Открытие попапа для замены аватара
+avatarEditButton.addEventListener("click", () => {
+  openPopup(popupAvatar);
+  clearValidation(popupAvatar, config);
+  avatarForm.reset();
+});
+// Отправка формы обновления аватара
+avatarForm.addEventListener("submit", handleAvatarFormSubmit);
 
 ///Элементы для работы кнопки "редактировать"
 const editButton = document.querySelector(".profile__edit-button");
@@ -349,8 +418,6 @@ closeButtons.forEach((button) => {
 const editFormElement = document.querySelector('form[name="edit-profile"]'); //форма
 const editFormInput = editFormElement.querySelector(".popup__input"); //все инпуты в форме
 
-// Выбираем элемент ошибки на основе уникального класса
-
 // Находим поля формы в DOM
 const formEditNameInput = document.querySelector('input[name="name"]');
 const formEditJobInput = document.querySelector('input[name="description"]');
@@ -374,20 +441,31 @@ function handleProfileFormSubmit(evt) {
   //Сбрасываем
   formEditNameInput.value = "";
   formEditJobInput.value = "";
+  // Получаем кнопку отправки формы через event.submitter
+  const submitButton = evt.submitter;
+  // Сохраняем оригинальный текст кнопки
+  const originalButtonText = submitButton.textContent;
+  // Включаем индикацию загрузки
+  renderLoading(true, submitButton, originalButtonText);
   /*// Вставляем новые значения с помощью textContent
   profileName.textContent = nameValue;
   profileJob.textContent = jobValue;*/
   updateUserData(nameValue, jobValue)
-    .then((updatedUser) => {
-      if (updatedUser) {
-        profileName.textContent = nameValue;
-        profileJob.textContent = jobValue;
-        console.log("Данные профиля успешно обновлены:", updatedUser);
+    .then((updateUser) => {
+      if (updateUser) {
+        profileName.textContent = updateUser.name;
+        profileJob.textContent = updateUser.about;
+        console.log("Данные профиля успешно обновлены:", updateUser);
+        closePopup(popupEdit);
+        return updateUser;
       }
-      return updatedUser;
     })
     .catch((error) => {
       console.error("Произошла ошибка при обновлении профиля:", error);
+    })
+    .finally(() => {
+      // Выключаем индикацию загрузки
+      renderLoading(false, submitButton, originalButtonText);
     });
 }
 
@@ -408,6 +486,12 @@ formAddNewCard.addEventListener("submit", (evt) => {
   //Получаем значения полей
   const nameCardValue = formAddNameCardInput.value;
   const linkInputValue = formAddLinkInput.value;
+  // Получаем кнопку отправки формы через event.submitter
+  const submitButton = evt.submitter;
+  // Сохраняем оригинальный текст кнопки
+  const originalButtonText = submitButton.textContent;
+  // Включаем индикацию загрузки
+  renderLoading(true, submitButton, originalButtonText);
   //вызываем функцию
   addNewCard(nameCardValue, linkInputValue)
     .then((newCard) => {
@@ -418,7 +502,7 @@ formAddNewCard.addEventListener("submit", (evt) => {
             name: newCard.name,
             link: newCard.link,
             _id: newCard._id,
-            owner: newCard.owner._id
+            owner: newCard.owner._id,
           },
           deleteCard,
           likedCard,
@@ -437,6 +521,10 @@ formAddNewCard.addEventListener("submit", (evt) => {
     })
     .catch((error) => {
       console.error("Произошла ошибка при добавлении карточки:", error);
+    })
+    .finally(() => {
+      // Выключаем индикацию загрузки
+      renderLoading(false, submitButton, originalButtonText);
     });
 });
 

@@ -23,8 +23,10 @@ s<!DOCTYPE html>
         <section class="profile page__section">
           <div
             class="profile__image"
-            style="background-image: url('<%=require('./images/avatar.jpg')%>')"
-          ></div>
+            style="background-image: url('<%= require('./images/avatar.jpg') %>');">
+            <div class="profile__image-edit"></div>
+          </div>
+
           <div class="profile__info">
             <h1 class="profile__title">Жак-Ив Кусто</h1>
             <button class="profile__edit-button" type="button"></button>
@@ -39,6 +41,28 @@ s<!DOCTYPE html>
       <footer class="footer page__section">
         <p class="footer__copyright">© 2021 Mesto Russia</p>
       </footer>
+      <div class="popup popup_type_avatar">
+        <div class="popup__content">
+          <button type="button" class="popup__close"></button>
+          <h3 class="popup__title">Обновить аватар</h3>
+          <form class="popup__form" name="update-avatar" novalidate>
+            <input
+              id="avatar-link-input"
+              type="url"
+              name="avatar-link"
+              class="popup__input popup__input_type_url popup__input_type_error"
+              placeholder="Ссылка на изображение"
+              required
+              pattern="/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/"
+            />
+            <span class="avatar-link-input-error popup__error_visible"></span>
+            <button type="submit" class="button popup__button">
+              Сохранить
+            </button>
+          </form>
+        </div>
+      </div>
+
       <div class="popup popup_type_edit">
         <div class="popup__content">
           <button type="button" class="popup__close"></button>
@@ -102,7 +126,6 @@ s<!DOCTYPE html>
               placeholder="Ссылка на картинку"
               required
               pattern="/^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/"
-              
             />
             <span class="link-name-input-error popup__error_visible"></span>
             <button type="submit" class="button popup__button">
@@ -126,9 +149,9 @@ s<!DOCTYPE html>
         <button type="button" class="card__delete-button"></button>
         <div class="card__description">
           <h2 class="card__title"></h2>
-          <div class="card_like-box">
-          <button type="button" class="card__like-button"></button>
-          <span class="card__like-count>0</span>
+          <div class="card__like-box">
+            <button type="button" class="card__like-button"></button>
+            <span class="card__like-count">0</span>
           </div>
         </div>
       </li>
