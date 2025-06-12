@@ -39,7 +39,7 @@ const getCards = () => {
 
 // Загружаем данные параллельно при помощи метода Promise.all()
 await Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
-  console.log(cardList);
+  /*console.log(cardList);*/
   cardList.forEach(({ name, link, _id, owner }) => {
     const newCard = createCard(
       { name, link, _id, owner },
@@ -50,8 +50,20 @@ await Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
     );
     placesList.append(newCard);
   });
-  /*profileName.textContent = user.name;
-        profileJob.textContent = user.about;*/
+  // Загружаем аватар
+  const profileImage = document.querySelector(".profile__image");
+  if (user.avatar) {
+    profileImage.style.backgroundImage = `url(${user.avatar})`;
+  }
+  // Если аватар отсутствует
+  else {
+    profileImage.style.backgroundImage = "none";
+  }
+  //Данные профиля
+  const profileName = document.querySelector(".profile__title");
+  const profileJob = document.querySelector(".profile__description");
+  profileName.textContent = user.name;
+  profileJob.textContent = user.about;
 });
 
 const updateUserData = (newName, newAbout) => {
