@@ -64,6 +64,9 @@ await Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
   const profileJob = document.querySelector(".profile__description");
   profileName.textContent = user.name;
   profileJob.textContent = user.about;
+/*//лайк
+const likeCountElement = document.querySelector(".card__like-count");
+  likeCountElement.textContent = likeData.likes.length;*/
 });
 
 const updateUserData = (newName, newAbout) => {

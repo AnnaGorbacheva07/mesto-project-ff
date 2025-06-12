@@ -87,7 +87,8 @@ export function likedCard(evt, _id, likeCountElement) {
           likeCount--;
           if (likeCount >= 0) {
             // Проверка на случай, если лайков больше нет
-            likeCountElement.textContent = likeCount;
+            likeCountElement.textContent = likeData.likes.length;
+            /*likeCountElement.textContent = likeCount;*/
           } else {
             likeCountElement.textContent = ""; // Убираем счетчик, если лайков нет
           }
@@ -104,7 +105,8 @@ export function likedCard(evt, _id, likeCountElement) {
         if (likeData) {
           likeButton.classList.add("card__like-button_is-active");
           likeCount++;
-          likeCountElement.textContent = likeCount;
+          likeCountElement.textContent = likeData.likes.length;
+            /*likeCountElement.textContent = likeCount;*/
           console.log("Лайк установлен успешно");
         }
       })
