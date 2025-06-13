@@ -1,4 +1,4 @@
-import { putLike, deleteLike } from "../index.js";
+import { putLike, deleteLike, deleteCard } from "./api.js";
 // Получаем элемент методом querySelector и его содержимое свойством content
 const cardTemplate = document.querySelector("#card-template").content;
 
@@ -122,24 +122,7 @@ export function likedCard(evt, _id, likeCountElement) {
   }
 }
 
-/// Функция удаления  карточки
-export function deleteCard(cardElement, _id) {
-  return fetch(`https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/${_id}`, {
-    method: "DELETE",
-    headers: {
-      authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-    },
-  })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Ошибка при удалении карточки: статус ${res.status}`);
-      }
-      cardElement.remove();
-    })
-    .catch((error) => {
-      console.error("Ошибка удаления карточки:", error);
-    });
-}
+
 
 /*/// Функция удаления  карточки
 export function deleteCard(cardElement) {

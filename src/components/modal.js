@@ -1,4 +1,4 @@
-import { clearValidation } from "../index.js"
+
 /// Функция открытия попапа
 export function openPopup(popup) {
   popup.classList.add("popup_is-opened");

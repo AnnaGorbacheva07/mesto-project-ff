@@ -1,154 +1,32 @@
 import "./pages/index.css"; // добавьте импорт главного файла стилей
 import { initialCards } from "./scripts/cards.js";
-import { createCard, likedCard, deleteCard } from "./components/card.js";
+import { createCard, likedCard } from "./components/card.js";
 import {
   openPopup,
   closePopup,
   handleOverlayClose,
   handleEscClose,
 } from "./components/modal.js";
+import { clearValidation, /*enableValidation*/ } from "./components/validation.js";
+import {
+  getUserData,
+  getCards,
+  updateUserData,
+  addNewCard,
+  /*putLike,
+  deleteLike,*/
+  updateUserAvatar,
+  deleteCard,
+} from "./components/api.js";
 
 //Создаём контейнер, в котором хранятся карточки.В нашем случае это <ul>//
 const placesList = document.querySelector(".places__list");
-
 const popups = document.querySelectorAll(".popup");
-
 popups.forEach((popup) => {
   // Добавляем класс анимации единожды при инициализации
   popup.classList.add("popup_is-animated");
 });
-//РАБОТА С API
-//Информация о пользователе с сервера
-const getUserData = () => {
-  return fetch("https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me", {
-    method: "GET",
-    headers: {
-      Authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-    },
-  }).then((res) => res.json());
-};
 
-//запрос на массив карточек
-const getCards = () => {
-  return fetch("https://mesto.nomoreparties.co/v1/wff-cohort-40/cards", {
-    headers: {
-      Authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-    },
-  }).then((res) => res.json());
-};
-
-
-
-const updateUserData = (newName, newAbout) => {
-  return fetch("https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me", {
-    method: "PATCH",
-    headers: {
-      authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: newName,
-      about: newAbout,
-    }),
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error("Ошибка обновления профиля");
-    }
-    return res.json();
-  });
-};
-
-const addNewCard = (newNameCard, newLink) => {
-  return fetch("https://mesto.nomoreparties.co/v1/wff-cohort-40/cards", {
-    method: "POST",
-    headers: {
-      authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: newNameCard,
-      link: newLink,
-    }),
-  })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Ошибка при добавлении карточки: статус ${res.status}`);
-      }
-      return res.json();
-    })
-    .then((newCard) => {
-      console.log("Новая карточка успешно добавлена:", newCard);
-      return newCard;
-    })
-    .catch((error) => {
-      console.error("Ошибка добавления карточки:", error);
-      return null;
-    });
-};
-//РАБОТА С ЛАЙКАМИ
-
-//ЗАПРОСЫ ПУТ И ДЕЛИТ
-export const putLike = (_id) => {
-  return fetch(
-    `https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`,
-    {
-      method: "PUT",
-      headers: {
-        authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-      },
-    }
-  )
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Ошибка при лайке карточки: статус ${res.status}`);
-      }
-      return res.json();
-    })
-    .catch((error) => {
-      console.error("Ошибка при установке лайка:", error);
-      return null;
-    });
-};
-export const deleteLike = (_id) => {
-  return fetch(
-    `https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`,
-    {
-      method: "DELETE",
-      headers: {
-        authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-      },
-    }
-  )
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Ошибка при лайке карточки: статус ${res.status}`);
-      }
-      return res.json();
-    })
-    .catch((error) => {
-      console.error("Ошибка при удалении лайка:", error);
-      return null;
-    });
-};
-///ОБНОВЛЕНИЕ АВАТАРКИ
-///ЗАПРОС
-const updateUserAvatar = (newAvatar) => {
-  return fetch(
-    "https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me/avatar",
-    {
-      method: "PATCH",
-      headers: {
-        authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        avatar: newAvatar,
-      }),
-    }
-  ).then((res) => {
-    return res.json();
-  });
-};
 ///ФУНКЦИЯ
 
 //Элементы для работы кнопки "аватар"
@@ -231,7 +109,7 @@ const caption = popupImage.querySelector(".popup__caption");
 //ВАЛИДАЦИЯ
 
 // Настройки валидации
-const config = {
+export const config = {
   formSelector: ".popup__form",
   inputSelector: ".popup__input",
   submitButtonSelector: ".popup__button",
@@ -245,126 +123,6 @@ const formInput = form.querySelector(config.inputSelector);
 // Выбираем элемент ошибки на основе уникального класса
 const formError = form.querySelector(`.${formInput.id}-error`);
 const buttonElement = form.querySelector(config.submitButtonSelector);
-
-// Функция, которая добавляет класс с ошибкой
-const showInputError = (formElement, inputElement, errorMessage) => {
-  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.add(config.inputErrorClass);
-  // Показываем сообщение об ошибке
-  errorElement.classList.add(config.errorClass);
-  // Заменим содержимое span с ошибкой на переданный параметр
-  errorElement.textContent = errorMessage;
-};
-
-// Функция, которая удаляет класс с ошибкой
-const hideInputError = (formElement, inputElement) => {
-  const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
-  inputElement.classList.remove(config.inputErrorClass);
-  // Скрываем сообщение об ошибке
-  errorElement.classList.remove(config.errorClass);
-  // Очистим ошибку
-  errorElement.textContent = "";
-};
-
-const checkInputValidity = (formElement, inputElement) => {
-  if (inputElement.validity.patternMismatch) {
-    // встроенный метод setCustomValidity принимает на вход строку
-    // и заменяет ею стандартное сообщение об ошибке
-    inputElement.setCustomValidity(inputElement.dataset.errorMessage);
-  } else {
-    // если передать пустую строку, то будут доступны
-    // стандартные браузерные сообщения
-    inputElement.setCustomValidity("");
-  }
-  if (!inputElement.validity.valid) {
-    showInputError(formElement, inputElement, inputElement.validationMessage);
-  } else {
-    hideInputError(formElement, inputElement);
-  }
-};
-
-// Функция принимает массив полей формы и возвращает true, если в нём хотя бы одно поле не валидно, и false, если все валидны.
-
-const hasInvalidInput = (inputList) => {
-  // проходим по этому массиву методом some
-  return inputList.some((inputElement) => {
-    // Если поле не валидно, колбэк вернёт true
-    // Обход массива прекратится и вся функция
-    // hasInvalidInput вернёт true
-
-    return !inputElement.validity.valid;
-  });
-};
-// Функция принимает массив полей ввода
-// и элемент кнопки, состояние которой нужно менять
-
-const toggleButtonState = (inputList, buttonElement) => {
-  // Если есть хотя бы один невалидный инпут
-  if (hasInvalidInput(inputList)) {
-    // сделай кнопку неактивной
-    buttonElement.disabled = true;
-    buttonElement.classList.add(config.inactiveButtonClass);
-  } else {
-    // иначе сделай кнопку активной
-    buttonElement.disabled = false;
-    buttonElement.classList.remove(config.inactiveButtonClass);
-  }
-};
-const setEventListeners = (formElement) => {
-  // Находим все поля внутри формы,
-  // сделаем из них массив методом Array.from
-  const inputList = Array.from(
-    formElement.querySelectorAll(config.inputSelector)
-  );
-  const buttonElement = formElement.querySelector(config.submitButtonSelector);
-  // Вызовем toggleButtonState, чтобы не ждать ввода данных в поля
-  toggleButtonState(inputList, buttonElement);
-  // Обойдём все элементы полученной коллекции
-  inputList.forEach((inputElement) => {
-    // каждому полю добавим обработчик события input
-    inputElement.addEventListener("input", () => {
-      // Внутри колбэка вызовем isValid,
-      // передав ей форму и проверяемый элемент
-      checkInputValidity(formElement, inputElement);
-      // Вызовем toggleButtonState и передадим ей массив полей и кнопку
-      toggleButtonState(inputList, buttonElement);
-    });
-  });
-};
-
-const enableValidation = (formElement) => {
-  // Найдём все формы с указанным классом в DOM,
-  // сделаем из них массив методом Array.from
-  const formList = Array.from(document.querySelectorAll(config.formSelector));
-
-  // Переберём полученную коллекцию
-  formList.forEach((formElement) => {
-    formElement.addEventListener("submit", (evt) => {
-      evt.preventDefault();
-    });
-    // Для каждой формы вызовем функцию setEventListeners,
-    // передав ей элемент формы
-    setEventListeners(formElement);
-  });
-};
-// Вызовем функцию
-enableValidation();
-
-export const clearValidation = (formElement, config) => {
-  const inputList = Array.from(
-    formElement.querySelectorAll(config.inputSelector)
-  );
-  const buttonElement = formElement.querySelector(config.submitButtonSelector);
-
-  // Очищаем все ошибки для всех инпутов
-  inputList.forEach((input) => {
-    hideInputError(formElement, input);
-  });
-
-  // Делаем кнопку неактивной
-  buttonElement.disabled = true;
-  buttonElement.classList.add(config.inactiveButtonClass);
-};
 
 //ЗАКРЫТИЕ И ОТКРЫТИЕ ПОПАПОВ
 
@@ -521,12 +279,11 @@ function openImagePopup(src, name) {
   openPopup(popupImage);
 }
 // Загружаем данные параллельно при помощи метода Promise.all()
-await Promise.all([getUserData(), getCards()])
-.then(([user, cardList]) => {
+await Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
   /*console.log(cardList);*/
-  cardList.forEach(({ name, link, _id, owner, likes}) => {
+  cardList.forEach(({ name, link, _id, owner, likes }) => {
     const newCard = createCard(
-      { name, link, _id, owner, likes},
+      { name, link, _id, owner, likes },
       deleteCard,
       likedCard,
       openImagePopup,
@@ -548,7 +305,7 @@ await Promise.all([getUserData(), getCards()])
   const profileJob = document.querySelector(".profile__description");
   profileName.textContent = user.name;
   profileJob.textContent = user.about;
-//лайк
-/*const likeCountElement = document.querySelector(".card__like-count");
+  //лайк
+  /*const likeCountElement = document.querySelector(".card__like-count");
   likeCountElement.textContent = user.likes.length;*/
 });
