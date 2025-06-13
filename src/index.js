@@ -37,37 +37,7 @@ const getCards = () => {
   }).then((res) => res.json());
 };
 
-// Загружаем данные параллельно при помощи метода Promise.all()
-await Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
-  /*console.log(cardList);*/
-  cardList.forEach(({ name, link, _id, owner }) => {
-    const newCard = createCard(
-      { name, link, _id, owner },
-      deleteCard,
-      likedCard,
-      openImagePopup,
-      user
-    );
-    placesList.append(newCard);
-  });
-  // Загружаем аватар
-  const profileImage = document.querySelector(".profile__image");
-  if (user.avatar) {
-    profileImage.style.backgroundImage = `url(${user.avatar})`;
-  }
-  // Если аватар отсутствует
-  else {
-    profileImage.style.backgroundImage = "none";
-  }
-  //Данные профиля
-  const profileName = document.querySelector(".profile__title");
-  const profileJob = document.querySelector(".profile__description");
-  profileName.textContent = user.name;
-  profileJob.textContent = user.about;
-/*//лайк
-const likeCountElement = document.querySelector(".card__like-count");
-  likeCountElement.textContent = likeData.likes.length;*/
-});
+
 
 const updateUserData = (newName, newAbout) => {
   return fetch("https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me", {
@@ -550,3 +520,35 @@ function openImagePopup(src, name) {
   caption.textContent = name;
   openPopup(popupImage);
 }
+// Загружаем данные параллельно при помощи метода Promise.all()
+await Promise.all([getUserData(), getCards()])
+.then(([user, cardList]) => {
+  /*console.log(cardList);*/
+  cardList.forEach(({ name, link, _id, owner, likes}) => {
+    const newCard = createCard(
+      { name, link, _id, owner, likes},
+      deleteCard,
+      likedCard,
+      openImagePopup,
+      user
+    );
+    placesList.append(newCard);
+  });
+  // Загружаем аватар
+  const profileImage = document.querySelector(".profile__image");
+  if (user.avatar) {
+    profileImage.style.backgroundImage = `url(${user.avatar})`;
+  }
+  // Если аватар отсутствует
+  else {
+    profileImage.style.backgroundImage = "none";
+  }
+  //Данные профиля
+  const profileName = document.querySelector(".profile__title");
+  const profileJob = document.querySelector(".profile__description");
+  profileName.textContent = user.name;
+  profileJob.textContent = user.about;
+//лайк
+/*const likeCountElement = document.querySelector(".card__like-count");
+  likeCountElement.textContent = user.likes.length;*/
+});
