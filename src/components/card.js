@@ -30,10 +30,6 @@ export function createCard(
     console.error("Элемент .card__like-count не найден в шаблоне");
     return;
   }
-  /*// Добавляем обработчик клика на кнопку удаления и функцию удаления
-  deleteButton.addEventListener("click", () => {
-    deleteCard(cardElement);
-  });*/
 
   // Проверяем, принадлежит ли карточка текущему пользователю
   if (user._id === owner._id) {
@@ -44,10 +40,6 @@ export function createCard(
   } else {
     deleteButton.style.display = "none";
   }
-  /*
- if (like._id === owner._id) { 
-  likeButton.classList.add("card__like-button_is-active");
- }*/
 
   // Проверяем, лайкнул ли карточку текущий пользователь
   if (likes.some((like) => like._id === user._id)) {
@@ -69,7 +61,7 @@ export function createCard(
 export function likedCard(evt, _id, likeCountElement) {
   const likeButton = evt.target;
   const isLiked = likeButton.classList.contains("card__like-button_is-active");
-  /*const likeCountElement = document.querySelector(".card__like-count");*/
+
   // Логирование для проверки существования элементов
   console.log("likeCountElement:", likeCountElement);
   console.log("likeButton:", likeButton);
@@ -94,7 +86,6 @@ export function likedCard(evt, _id, likeCountElement) {
           if (likeCount >= 0) {
             // Проверка на случай, если лайков больше нет
             likeCountElement.textContent = likeData.likes.length;
-            /*likeCountElement.textContent = likeCount;*/
           } else {
             likeCountElement.textContent = ""; // Убираем счетчик, если лайков нет
           }
@@ -112,7 +103,7 @@ export function likedCard(evt, _id, likeCountElement) {
           likeButton.classList.add("card__like-button_is-active");
           likeCount++;
           likeCountElement.textContent = likeData.likes.length;
-          /*likeCountElement.textContent = likeCount;*/
+
           console.log("Лайк установлен успешно");
         }
       })
@@ -121,19 +112,3 @@ export function likedCard(evt, _id, likeCountElement) {
       });
   }
 }
-
-
-
-/*/// Функция удаления  карточки
-export function deleteCard(cardElement) {
-  cardElement.remove();
-}
-*/
-
-/*// Проверяем, лайкнул ли текущий пользователь карточку
-  const isLiked = owner.likes.some((like) => like._id === user._id);
-  if (isLiked) {
-    likeButton.classList.add("card__like-button_is-active");
-  }
-   // Устанавливаем количество лайков
-  likeCount.textContent = newCard.likes.length;*/

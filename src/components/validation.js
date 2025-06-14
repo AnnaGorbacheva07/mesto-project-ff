@@ -1,5 +1,4 @@
-
-import {config} from "../index.js";
+import { config } from "../index.js";
 // Функция, которая добавляет класс с ошибкой
 const showInputError = (formElement, inputElement, errorMessage) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
@@ -117,7 +116,3 @@ export const enableValidation = (formElement) => {
     setEventListeners(formElement);
   });
 };
-// Вызовем функцию
-enableValidation();
-
-

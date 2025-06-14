@@ -7,34 +7,118 @@ import {
   handleOverlayClose,
   handleEscClose,
 } from "./components/modal.js";
-import { clearValidation, /*enableValidation*/ } from "./components/validation.js";
+import { clearValidation, enableValidation } from "./components/validation.js";
 import {
   getUserData,
   getCards,
   updateUserData,
   addNewCard,
-  /*putLike,
-  deleteLike,*/
   updateUserAvatar,
   deleteCard,
 } from "./components/api.js";
 
+///ПЕРЕМЕННЫЕ
+
 //Создаём контейнер, в котором хранятся карточки.В нашем случае это <ul>//
 const placesList = document.querySelector(".places__list");
+
+//Плавное открытие попапа
 const popups = document.querySelectorAll(".popup");
 popups.forEach((popup) => {
   // Добавляем класс анимации единожды при инициализации
   popup.classList.add("popup_is-animated");
 });
 
-///ФУНКЦИЯ
-
-//Элементы для работы кнопки "аватар"
+//ПЕРЕМЕННЫЕ ДЛЯ РАБОТЫ ПОПАПА "АВАТАР"
 const avatarEditButton = document.querySelector(".profile__image-edit");
 const popupAvatar = document.querySelector(".popup_type_avatar");
 const avatarForm = document.querySelector('form[name="update-avatar"]');
 const formAvatarInput = avatarForm.querySelector('input[name="avatar-link"]');
 const profileImage = document.querySelector(".profile__image");
+
+///ПЕРЕМЕННЫЕ ДЛЯ РАБОТЫ ПОПАПА "РЕДАКТИРОВАТЬ"
+const editButton = document.querySelector(".profile__edit-button");
+const popupEdit = document.querySelector(".popup_type_edit");
+
+// Находим форму в DOM
+
+const editFormElement = document.querySelector('form[name="edit-profile"]'); //форма
+const editFormInput = editFormElement.querySelector(".popup__input"); //все инпуты в форме
+
+// Находим поля формы в DOM
+const formEditNameInput = document.querySelector('input[name="name"]');
+const formEditJobInput = document.querySelector('input[name="description"]');
+
+// Выбераем элементы, куда должны быть вставать значения полей
+const profileName = document.querySelector(".profile__title");
+const profileJob = document.querySelector(".profile__description");
+
+///ПЕРЕМЕННЫЕ ДЛЯ РАБОТЫ ПОПАПА "ДОБАВИТЬ"
+const addButton = document.querySelector(".profile__add-button");
+const popupNewcard = document.querySelector(".popup_type_new-card");
+
+// Получаем элементы DOM
+const popupNewCard = document.querySelector(".popup_type_new-card");
+const formAddNewCard = document.querySelector('form[name="new-place"]');
+const formAddNameCardInput = document.querySelector('input[name="place-name"]');
+const formAddLinkInput = document.querySelector('input[name="link"]');
+const saveButton = popupNewCard.querySelector(".popup__button");
+
+///ПЕРЕМЕННЫЕ ДЛЯ РАБОТЫ ПОПАПА "КЛИК ПО ИЗОБРАЖЕНИЮ"
+const popupImage = document.querySelector(".popup_type_image");
+const imageElement = popupImage.querySelector(".popup__image");
+const caption = popupImage.querySelector(".popup__caption");
+
+// Получаем все кнопки закрытия попапов
+const closeButtons = document.querySelectorAll(".popup__close");
+
+// Обработчик для всех кнопок закрытия попапов
+closeButtons.forEach((button) => {
+  //Цикл forEach проходит по всем кнопкам в массиве closeButtons.
+  button.addEventListener("click", (event) => {
+    //При нажатии на любую из этих кнопок выполняется анонимная функция
+    const popup = event.target.closest(".popup"); //Находит ближайший родительский элемент с классом .popup от места, где был нажат элемент.
+    if (popup) {
+      closePopup(popup); //Если такой элемент найден (popup), вызывается функция closePopup(popup), чтобы закрыть попап.
+    }
+  });
+});
+
+//ВАЛИДАЦИЯ
+
+// Настройки валидации
+export const config = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__error_visible",
+};
+
+// Вынесем все необходимые элементы формы в константы
+const form = document.querySelector(config.formSelector);
+const formInput = form.querySelector(config.inputSelector);
+
+// Выбираем элемент ошибки на основе уникального класса
+const formError = form.querySelector(`.${formInput.id}-error`);
+const buttonElement = form.querySelector(config.submitButtonSelector);
+
+// Вызов функции
+enableValidation();
+
+// Добавляем обработчики событий
+editButton.addEventListener("click", () => {
+  setProfileInputs(); // заполняем попап данными
+  openPopup(popupEdit); // открываем его
+  clearValidation(popupEdit, config);
+});
+
+addButton.addEventListener("click", () => {
+  openPopup(popupNewCard);
+  clearValidation(popupNewCard, config);
+  formAddNewCard.reset();
+});
 
 // Функция для изменения текста кнопки в зависимости от состояния загрузки
 function renderLoading(
@@ -49,6 +133,7 @@ function renderLoading(
     button.textContent = buttonText;
   }
 }
+//РАБОТА С ОТКРЫТЫМ ПОПАПОМ "АВАТАР"
 
 // Обработчик отправки формы обновления аватара
 function handleAvatarFormSubmit(evt) {
@@ -83,7 +168,6 @@ function handleAvatarFormSubmit(evt) {
     });
 }
 
-/* */
 // Открытие попапа для замены аватара
 avatarEditButton.addEventListener("click", () => {
   openPopup(popupAvatar);
@@ -93,81 +177,7 @@ avatarEditButton.addEventListener("click", () => {
 // Отправка формы обновления аватара
 avatarForm.addEventListener("submit", handleAvatarFormSubmit);
 
-///Элементы для работы кнопки "редактировать"
-const editButton = document.querySelector(".profile__edit-button");
-const popupEdit = document.querySelector(".popup_type_edit");
-
-///Элементы для работы кнопки "добавить"
-const addButton = document.querySelector(".profile__add-button");
-const popupNewcard = document.querySelector(".popup_type_new-card");
-
-///Элементы для работы клика по изображению карточки
-const popupImage = document.querySelector(".popup_type_image");
-const imageElement = popupImage.querySelector(".popup__image");
-const caption = popupImage.querySelector(".popup__caption");
-
-//ВАЛИДАЦИЯ
-
-// Настройки валидации
-export const config = {
-  formSelector: ".popup__form",
-  inputSelector: ".popup__input",
-  submitButtonSelector: ".popup__button",
-  inactiveButtonClass: "popup__button_disabled",
-  inputErrorClass: "popup__input_type_error",
-  errorClass: "popup__error_visible",
-};
-// Вынесем все необходимые элементы формы в константы
-const form = document.querySelector(config.formSelector);
-const formInput = form.querySelector(config.inputSelector);
-// Выбираем элемент ошибки на основе уникального класса
-const formError = form.querySelector(`.${formInput.id}-error`);
-const buttonElement = form.querySelector(config.submitButtonSelector);
-
-//ЗАКРЫТИЕ И ОТКРЫТИЕ ПОПАПОВ
-
-// Получаем все кнопки закрытия попапов
-const closeButtons = document.querySelectorAll(".popup__close");
-// Функция открытия попапа "редактировать"
-
-// Добавляем обработчики событий
-editButton.addEventListener("click", () => {
-  setProfileInputs(); // заполняем попап данными
-  openPopup(popupEdit); // открываем его
-  clearValidation(popupEdit, config);
-});
-
-addButton.addEventListener("click", () => {
-  openPopup(popupNewCard);
-  clearValidation(popupNewCard, config);
-  formAddNewCard.reset();
-});
-
-// Обработчик для всех кнопок закрытия попапов
-closeButtons.forEach((button) => {
-  //Цикл forEach проходит по всем кнопкам в массиве closeButtons.
-  button.addEventListener("click", (event) => {
-    //При нажатии на любую из этих кнопок выполняется анонимная функция
-    const popup = event.target.closest(".popup"); //Находит ближайший родительский элемент с классом .popup от места, где был нажат элемент.
-    if (popup) {
-      closePopup(popup); //Если такой элемент найден (popup), вызывается функция closePopup(popup), чтобы закрыть попап.
-    }
-  });
-});
-
 //РАБОТА С ОТКРЫТЫМ ПОПАПОМ "РЕДАКТИРОВАТЬ"
-// Находим форму в DOM
-
-const editFormElement = document.querySelector('form[name="edit-profile"]'); //форма
-const editFormInput = editFormElement.querySelector(".popup__input"); //все инпуты в форме
-
-// Находим поля формы в DOM
-const formEditNameInput = document.querySelector('input[name="name"]');
-const formEditJobInput = document.querySelector('input[name="description"]');
-
-// Выберите элементы, куда должны быть вставлены значения полей
-const profileName = document.querySelector(".profile__title");
-const profileJob = document.querySelector(".profile__description");
 
 function setProfileInputs() {
   // Заполняем поля формы текущими значениями
@@ -190,9 +200,7 @@ function handleProfileFormSubmit(evt) {
   const originalButtonText = submitButton.textContent;
   // Включаем индикацию загрузки
   renderLoading(true, submitButton, originalButtonText);
-  /*// Вставляем новые значения с помощью textContent
-  profileName.textContent = nameValue;
-  profileJob.textContent = jobValue;*/
+
   updateUserData(nameValue, jobValue)
     .then((updateUser) => {
       if (updateUser) {
@@ -217,12 +225,6 @@ editFormElement.addEventListener("submit", handleProfileFormSubmit);
 
 //РАБОТА С ПОПАПОМ "ДОБАВИТЬ КАРТОЧКУ"
 
-// Получаем элементы DOM
-const popupNewCard = document.querySelector(".popup_type_new-card");
-const formAddNewCard = document.querySelector('form[name="new-place"]');
-const formAddNameCardInput = document.querySelector('input[name="place-name"]');
-const formAddLinkInput = document.querySelector('input[name="link"]');
-const saveButton = popupNewCard.querySelector(".popup__button");
 // Обработчик события submit
 formAddNewCard.addEventListener("submit", (evt) => {
   evt.preventDefault();
@@ -251,7 +253,6 @@ formAddNewCard.addEventListener("submit", (evt) => {
           likedCard,
           openImagePopup,
           newCard.owner
-          /*handleLike,*/
         );
         placesList.prepend(newCardElement);
 
@@ -278,6 +279,7 @@ function openImagePopup(src, name) {
   caption.textContent = name;
   openPopup(popupImage);
 }
+
 // Загружаем данные параллельно при помощи метода Promise.all()
 await Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
   /*console.log(cardList);*/
@@ -305,7 +307,4 @@ await Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
   const profileJob = document.querySelector(".profile__description");
   profileName.textContent = user.name;
   profileJob.textContent = user.about;
-  //лайк
-  /*const likeCountElement = document.querySelector(".card__like-count");
-  likeCountElement.textContent = user.likes.length;*/
 });
