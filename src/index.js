@@ -96,13 +96,13 @@ export const config = {
   errorClass: "popup__error_visible",
 };
 
-// Вынесем все необходимые элементы формы в константы
+/*// Вынесем все необходимые элементы формы в константы
 const form = document.querySelector(config.formSelector);
-const formInput = form.querySelector(config.inputSelector);
+const formInput = form.querySelector(config.inputSelector);*/
 
-// Выбираем элемент ошибки на основе уникального класса
+/*// Выбираем элемент ошибки на основе уникального класса
 const formError = form.querySelector(`.${formInput.id}-error`);
-const buttonElement = form.querySelector(config.submitButtonSelector);
+const buttonElement = form.querySelector(config.submitButtonSelector);*/
 
 // Вызов функции
 enableValidation();
@@ -255,12 +255,10 @@ formAddNewCard.addEventListener("submit", (evt) => {
           newCard.owner
         );
         placesList.prepend(newCardElement);
-
-        // Сброс формы
-        formAddNewCard.reset();
-
         // Закрываем попап
         closePopup(popupNewCard);
+        // Сброс формы
+        formAddNewCard.reset();
       }
     })
     .catch((error) => {
@@ -281,7 +279,7 @@ function openImagePopup(src, name) {
 }
 
 // Загружаем данные параллельно при помощи метода Promise.all()
-await Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
+Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
   /*console.log(cardList);*/
   cardList.forEach(({ name, link, _id, owner, likes }) => {
     const newCard = createCard(
@@ -303,8 +301,8 @@ await Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
     profileImage.style.backgroundImage = "none";
   }
   //Данные профиля
-  const profileName = document.querySelector(".profile__title");
-  const profileJob = document.querySelector(".profile__description");
+  /*const profileName = document.querySelector(".profile__title");
+  const profileJob = document.querySelector(".profile__description");*/
   profileName.textContent = user.name;
   profileJob.textContent = user.about;
 });

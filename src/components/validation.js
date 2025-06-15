@@ -1,4 +1,5 @@
-import { config } from "../index.js";
+
+import {config} from "../index.js";
 // Функция, которая добавляет класс с ошибкой
 const showInputError = (formElement, inputElement, errorMessage) => {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
@@ -86,7 +87,7 @@ const setEventListeners = (formElement) => {
     });
   });
 };
-export const clearValidation = (formElement, config) => {
+export const clearValidation = (formElement) => {
   const inputList = Array.from(
     formElement.querySelectorAll(config.inputSelector)
   );
@@ -106,13 +107,10 @@ export const enableValidation = (formElement) => {
   // сделаем из них массив методом Array.from
   const formList = Array.from(document.querySelectorAll(config.formSelector));
 
-  // Переберём полученную коллекцию
-  formList.forEach((formElement) => {
-    formElement.addEventListener("submit", (evt) => {
-      evt.preventDefault();
-    });
-    // Для каждой формы вызовем функцию setEventListeners,
-    // передав ей элемент формы
-    setEventListeners(formElement);
-  });
+  // Переберём полученную коллекцию 
+  formList.forEach((formElement) => { 
+    // Для каждой формы вызовем функцию setEventListeners, 
+    // передав ей элемент формы 
+    setEventListeners(formElement); 
+  }); 
 };

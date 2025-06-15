@@ -82,15 +82,11 @@ export function likedCard(evt, _id, likeCountElement) {
       .then((likeData) => {
         if (likeData) {
           likeButton.classList.remove("card__like-button_is-active");
-          likeCount--;
-          if (likeCount >= 0) {
-            // Проверка на случай, если лайков больше нет
-            likeCountElement.textContent = likeData.likes.length;
-          } else {
-            likeCountElement.textContent = ""; // Убираем счетчик, если лайков нет
-          }
-          console.log("Лайк удален успешно");
+          likeCountElement.textContent = likeData.likes.length;
+        } else {
+          likeCountElement.textContent = ""; // Убираем счетчик, если лайков нет
         }
+        console.log("Лайк удален успешно");
       })
       .catch((err) => {
         console.error("Ошибка при удалении лайка:", err);
@@ -101,9 +97,7 @@ export function likedCard(evt, _id, likeCountElement) {
       .then((likeData) => {
         if (likeData) {
           likeButton.classList.add("card__like-button_is-active");
-          likeCount++;
           likeCountElement.textContent = likeData.likes.length;
-
           console.log("Лайк установлен успешно");
         }
       })

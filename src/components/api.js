@@ -1,62 +1,60 @@
 //РАБОТА С API
+
+// Базовый URL и заголовки запросов
+const apiConfig = {
+  baseUrl: "https://nomoreparties.co/v1/wff-cohort-40",
+  headers: {
+    authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
+    "Content-Type": "application/json",
+  },
+};
+
+// Проверка ответа от сервера
+const getResponseData = (res) => {
+      if (!res.ok) {
+        throw new Error(`Ошибка: ${res.status}`);
+      }
+      return res.json();
+    };
+
 //Информация о пользователе с сервера
 export const getUserData = () => {
-  return fetch("https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me", {
+  return fetch(`${apiConfig.baseUrl}/users/me`, {
     method: "GET",
-    headers: {
-      Authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-    },
-  }).then((res) => res.json());
+    headers: apiConfig.headers,
+  }).then(getResponseData);
 };
 
 //запрос на массив карточек
 export const getCards = () => {
-  return fetch("https://mesto.nomoreparties.co/v1/wff-cohort-40/cards", {
-    headers: {
-      Authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-    },
-  }).then((res) => res.json());
+  return fetch(`${apiConfig.baseUrl}/cards`, {
+    headers: apiConfig.headers,
+  }).then(getResponseData);
 };
 
 
 
 export const updateUserData = (newName, newAbout) => {
-  return fetch("https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me", {
+  return fetch(`${apiConfig.baseUrl}/users/me`, {
     method: "PATCH",
-    headers: {
-      authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-      "Content-Type": "application/json",
-    },
+    headers: apiConfig.headers,
     body: JSON.stringify({
       name: newName,
       about: newAbout,
     }),
-  }).then((res) => {
-    if (!res.ok) {
-      throw new Error("Ошибка обновления профиля");
-    }
-    return res.json();
-  });
+  }).then(getResponseData);
 };
 
 export const addNewCard = (newNameCard, newLink) => {
-  return fetch("https://mesto.nomoreparties.co/v1/wff-cohort-40/cards", {
+  return fetch(`${apiConfig.baseUrl}/cards`, {
     method: "POST",
-    headers: {
-      authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-      "Content-Type": "application/json",
-    },
+    headers: apiConfig.headers,
     body: JSON.stringify({
       name: newNameCard,
       link: newLink,
     }),
   })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Ошибка при добавлении карточки: статус ${res.status}`);
-      }
-      return res.json();
-    })
+    .then(getResponseData)
     .then((newCard) => {
       console.log("Новая карточка успешно добавлена:", newCard);
       return newCard;
@@ -69,18 +67,12 @@ export const addNewCard = (newNameCard, newLink) => {
 
 /// Функция удаления  карточки
 export function deleteCard(cardElement, _id) {
-  return fetch(`https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/${_id}`, {
+  return fetch(`${apiConfig.baseUrl}/cards/${_id}`, {
     method: "DELETE",
-    headers: {
-      authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-    },
+    headers: apiConfig.headers,
   })
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Ошибка при удалении карточки: статус ${res.status}`);
-      }
-      cardElement.remove();
-    })
+    .then(getResponseData)
+    .then(() => cardElement.remove())
     .catch((error) => {
       console.error("Ошибка удаления карточки:", error);
     });
@@ -90,20 +82,13 @@ export function deleteCard(cardElement, _id) {
 //ЗАПРОСЫ ПУТ И ДЕЛИТ
 export const putLike = (_id) => {
   return fetch(
-    `https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`,
+    `${apiConfig.baseUrl}/cards/likes/${_id}`,
     {
       method: "PUT",
-      headers: {
-        authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-      },
+      headers: apiConfig.headers,
     }
   )
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Ошибка при лайке карточки: статус ${res.status}`);
-      }
-      return res.json();
-    })
+    .then(getResponseData)
     .catch((error) => {
       console.error("Ошибка при установке лайка:", error);
       return null;
@@ -111,20 +96,13 @@ export const putLike = (_id) => {
 };
 export const deleteLike = (_id) => {
   return fetch(
-    `https://mesto.nomoreparties.co/v1/wff-cohort-40/cards/likes/${_id}`,
+    `${apiConfig.baseUrl}/cards/likes/${_id}`,
     {
       method: "DELETE",
-      headers: {
-        authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-      },
+      headers: apiConfig.headers,
     }
   )
-    .then((res) => {
-      if (!res.ok) {
-        throw new Error(`Ошибка при лайке карточки: статус ${res.status}`);
-      }
-      return res.json();
-    })
+    .then(getResponseData)
     .catch((error) => {
       console.error("Ошибка при удалении лайка:", error);
       return null;
@@ -134,18 +112,13 @@ export const deleteLike = (_id) => {
 ///ЗАПРОС
 export const updateUserAvatar = (newAvatar) => {
   return fetch(
-    "https://mesto.nomoreparties.co/v1/wff-cohort-40/users/me/avatar",
+    `${apiConfig.baseUrl}/users/me/avatar`,
     {
       method: "PATCH",
-      headers: {
-        authorization: "d40019f3-d207-40df-a273-89cf4c1c6a66",
-        "Content-Type": "application/json",
-      },
+      headers: apiConfig.headers,
       body: JSON.stringify({
         avatar: newAvatar,
       }),
     }
-  ).then((res) => {
-    return res.json();
-  });
+  ).then(getResponseData);
 };
