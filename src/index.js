@@ -87,7 +87,7 @@ closeButtons.forEach((button) => {
 //ВАЛИДАЦИЯ
 
 // Настройки валидации
-export const config = {
+/*export */ const config = {
   formSelector: ".popup__form",
   inputSelector: ".popup__input",
   submitButtonSelector: ".popup__button",
@@ -105,7 +105,7 @@ const formError = form.querySelector(`.${formInput.id}-error`);
 const buttonElement = form.querySelector(config.submitButtonSelector);*/
 
 // Вызов функции
-enableValidation();
+enableValidation(config);
 
 // Добавляем обработчики событий
 editButton.addEventListener("click", () => {
@@ -248,6 +248,7 @@ formAddNewCard.addEventListener("submit", (evt) => {
             link: newCard.link,
             _id: newCard._id,
             owner: newCard.owner._id,
+            likes: newCard.likes,
           },
           deleteCard,
           likedCard,
