@@ -87,7 +87,7 @@ closeButtons.forEach((button) => {
 //ВАЛИДАЦИЯ
 
 // Настройки валидации
-/*export */ const config = {
+const config = {
   formSelector: ".popup__form",
   inputSelector: ".popup__input",
   submitButtonSelector: ".popup__button",
@@ -98,7 +98,7 @@ closeButtons.forEach((button) => {
 
 /*// Вынесем все необходимые элементы формы в константы
 const form = document.querySelector(config.formSelector);
-const formInput = form.querySelector(config.inputSelector);*/
+const formInput = form.querySelector(config.inputSelector); мне показалось что эти общие тоже не нужны,т.к. для каждой формы есть*/
 
 /*// Выбираем элемент ошибки на основе уникального класса
 const formError = form.querySelector(`.${formInput.id}-error`);
@@ -252,8 +252,9 @@ formAddNewCard.addEventListener("submit", (evt) => {
           },
           deleteCard,
           likedCard,
-          openImagePopup,
-          newCard.owner
+          openImagePopup, 
+          userId
+          /*newCard.owner*/
         );
         placesList.prepend(newCardElement);
         // Закрываем попап
@@ -278,10 +279,12 @@ function openImagePopup(src, name) {
   caption.textContent = name;
   openPopup(popupImage);
 }
-
+let userId="";
 // Загружаем данные параллельно при помощи метода Promise.all()
-Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
+Promise.all([getUserData(), getCards()])
+.then(([user, cardList]) => {
   /*console.log(cardList);*/
+  
   cardList.forEach(({ name, link, _id, owner, likes }) => {
     const newCard = createCard(
       { name, link, _id, owner, likes },
@@ -301,9 +304,9 @@ Promise.all([getUserData(), getCards()]).then(([user, cardList]) => {
   else {
     profileImage.style.backgroundImage = "none";
   }
+
+  userId=user._id;
   //Данные профиля
-  /*const profileName = document.querySelector(".profile__title");
-  const profileJob = document.querySelector(".profile__description");*/
   profileName.textContent = user.name;
   profileJob.textContent = user.about;
 });
