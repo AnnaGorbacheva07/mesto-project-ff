@@ -1,6 +1,6 @@
 import "./pages/index.css"; // добавьте импорт главного файла стилей
 import { initialCards } from "./scripts/cards.js";
-import { createCard, likedCard } from "./components/card.js";
+import { createCard, likedCard, deleteCard } from "./components/card.js";
 import {
   openPopup,
   closePopup,
@@ -14,7 +14,7 @@ import {
   updateUserData,
   addNewCard,
   updateUserAvatar,
-  deleteCard,
+  removeCard,
 } from "./components/api.js";
 
 ///ПЕРЕМЕННЫЕ
@@ -160,7 +160,7 @@ function handleAvatarFormSubmit(evt) {
       avatarForm.reset();
     })
     .catch((err) => {
-      console.error(`Ошибка обновлениz аватара: ${err}`);
+      console.error(`Ошибка обновления аватара: ${err}`);
     })
     .finally(() => {
       // Выключаем индикацию загрузки
@@ -252,7 +252,7 @@ formAddNewCard.addEventListener("submit", (evt) => {
           },
           deleteCard,
           likedCard,
-          openImagePopup, 
+          openImagePopup,
           userId
           /*newCard.owner*/
         );
@@ -279,34 +279,37 @@ function openImagePopup(src, name) {
   caption.textContent = name;
   openPopup(popupImage);
 }
-let userId="";
+let userId = "";
 // Загружаем данные параллельно при помощи метода Promise.all()
 Promise.all([getUserData(), getCards()])
-.then(([user, cardList]) => {
-  /*console.log(cardList);*/
-  
-  cardList.forEach(({ name, link, _id, owner, likes }) => {
-    const newCard = createCard(
-      { name, link, _id, owner, likes },
-      deleteCard,
-      likedCard,
-      openImagePopup,
-      user
-    );
-    placesList.append(newCard);
-  });
-  // Загружаем аватар
-  const profileImage = document.querySelector(".profile__image");
-  if (user.avatar) {
-    profileImage.style.backgroundImage = `url(${user.avatar})`;
-  }
-  // Если аватар отсутствует
-  else {
-    profileImage.style.backgroundImage = "none";
-  }
+  .then(([user, cardList]) => {
+    /*console.log(cardList);*/
 
-  userId=user._id;
-  //Данные профиля
-  profileName.textContent = user.name;
-  profileJob.textContent = user.about;
-});
+    cardList.forEach(({ name, link, _id, owner, likes }) => {
+      const newCard = createCard(
+        { name, link, _id, owner, likes },
+        deleteCard,
+        likedCard,
+        openImagePopup,
+        user
+      );
+      placesList.append(newCard);
+    });
+    // Загружаем аватар
+    const profileImage = document.querySelector(".profile__image");
+    if (user.avatar) {
+      profileImage.style.backgroundImage = `url(${user.avatar})`;
+    }
+    // Если аватар отсутствует
+    else {
+      profileImage.style.backgroundImage = "none";
+    }
+
+    userId = user._id;
+    //Данные профиля
+    profileName.textContent = user.name;
+    profileJob.textContent = user.about;
+  })
+  .catch((error) => {
+    console.error("Ошибка при загрузке данных:", error);
+  });

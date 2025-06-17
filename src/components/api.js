@@ -11,11 +11,11 @@ const apiConfig = {
 
 // Проверка ответа от сервера
 const getResponseData = (res) => {
-      if (!res.ok) {
-        throw new Error(`Ошибка: ${res.status}`);
-      }
-      return res.json();
-    };
+  if (!res.ok) {
+    throw new Error(`Ошибка: ${res.status}`);
+  }
+  return res.json();
+};
 
 //Информация о пользователе с сервера
 export const getUserData = () => {
@@ -31,8 +31,6 @@ export const getCards = () => {
     headers: apiConfig.headers,
   }).then(getResponseData);
 };
-
-
 
 export const updateUserData = (newName, newAbout) => {
   return fetch(`${apiConfig.baseUrl}/users/me`, {
@@ -58,67 +56,39 @@ export const addNewCard = (newNameCard, newLink) => {
     .then((newCard) => {
       console.log("Новая карточка успешно добавлена:", newCard);
       return newCard;
-    })
-    .catch((error) => {
-      console.error("Ошибка добавления карточки:", error);
-      return null;
     });
 };
 
-/// Функция удаления  карточки
-export function deleteCard(cardElement, _id) {
+/// Запрос удаления  карточки
+export const removeCard = (_id) => {
   return fetch(`${apiConfig.baseUrl}/cards/${_id}`, {
     method: "DELETE",
     headers: apiConfig.headers,
-  })
-    .then(getResponseData)
-    .then(() => cardElement.remove())
-    .catch((error) => {
-      console.error("Ошибка удаления карточки:", error);
-    });
-}
+  }).then(getResponseData);
+};
 //РАБОТА С ЛАЙКАМИ
 
 //ЗАПРОСЫ ПУТ И ДЕЛИТ
 export const putLike = (_id) => {
-  return fetch(
-    `${apiConfig.baseUrl}/cards/likes/${_id}`,
-    {
-      method: "PUT",
-      headers: apiConfig.headers,
-    }
-  )
-    .then(getResponseData)
-    .catch((error) => {
-      console.error("Ошибка при установке лайка:", error);
-      return null;
-    });
+  return fetch(`${apiConfig.baseUrl}/cards/likes/${_id}`, {
+    method: "PUT",
+    headers: apiConfig.headers,
+  }).then(getResponseData);
 };
 export const deleteLike = (_id) => {
-  return fetch(
-    `${apiConfig.baseUrl}/cards/likes/${_id}`,
-    {
-      method: "DELETE",
-      headers: apiConfig.headers,
-    }
-  )
-    .then(getResponseData)
-    .catch((error) => {
-      console.error("Ошибка при удалении лайка:", error);
-      return null;
-    });
+  return fetch(`${apiConfig.baseUrl}/cards/likes/${_id}`, {
+    method: "DELETE",
+    headers: apiConfig.headers,
+  }).then(getResponseData);
 };
 ///ОБНОВЛЕНИЕ АВАТАРКИ
 ///ЗАПРОС
 export const updateUserAvatar = (newAvatar) => {
-  return fetch(
-    `${apiConfig.baseUrl}/users/me/avatar`,
-    {
-      method: "PATCH",
-      headers: apiConfig.headers,
-      body: JSON.stringify({
-        avatar: newAvatar,
-      }),
-    }
-  ).then(getResponseData);
+  return fetch(`${apiConfig.baseUrl}/users/me/avatar`, {
+    method: "PATCH",
+    headers: apiConfig.headers,
+    body: JSON.stringify({
+      avatar: newAvatar,
+    }),
+  }).then(getResponseData);
 };

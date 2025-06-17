@@ -1,4 +1,4 @@
-import { putLike, deleteLike, deleteCard } from "./api.js";
+import { putLike, deleteLike, removeCard } from "./api.js";
 // Получаем элемент методом querySelector и его содержимое свойством content
 const cardTemplate = document.querySelector("#card-template").content;
 
@@ -105,4 +105,16 @@ export function likedCard(evt, _id, likeCountElement) {
         console.error("Ошибка при установке лайка:", err);
       });
   }
+}
+
+/// Функция удаления  карточки
+export function deleteCard(cardElement, _id) {
+  //Отправляем запрос
+  removeCard(_id)
+    .then(() => {
+      cardElement.remove();
+    })
+    .catch((error) => {
+      console.error("Ошибка удаления карточки:", error);
+    });
 }
